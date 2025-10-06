@@ -157,7 +157,3 @@ function StreamCard({ stream }: { stream: Stream }) {
         </div>
     )
 }
-
-function async() {
-    throw new Error("Function not implemented.");
-}

@@ -1,20 +1,13 @@
-
-
 'use client'
-
 import Header from '@/components/Header'
 import CommentsSection from '@/components/player/CommentSection'
 import StreamInfo from '@/components/player/StreamInfo'
 import SuggestionsSidebar from '@/components/player/SuggestionSidebar'
 import HlsPlayer from '@/components/player/VideoControls'
-import VideoControls from '@/components/player/VideoControls'
 import Sidebar from '@/components/Sidebar'
-// import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Suspense } from 'react';
-// import HlsPlayer from '../test2/player'
-
 
 function PlayerContent() {
     const [hls, setHls] = useState('');

@@ -13,6 +13,7 @@ export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
         // ✅ FIX: More robust quality switching logic
         const updateQuality = (newQuality: number) => {
             if (videoRef.current) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const hls = (videoRef.current as any).hls as Hls | undefined;
                 if (!hls) {
                     console.warn('HLS instance not found on video element.');
@@ -69,6 +70,7 @@ export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
 
             if (Hls.isSupported()) {
                 hls = new Hls();
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (videoElement as any).hls = hls;
 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -106,6 +108,7 @@ export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
             style={{
                 position: "relative",
                 // Move the CSS variable here
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ['--plyr-color-main' as any]: '#18A5FE'
             }}
         >

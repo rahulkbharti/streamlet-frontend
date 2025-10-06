@@ -24,3 +24,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* Ensure Plyr player takes full height */
+.hls-player-container .plyr {
+  height: 100%;
+  width: 100%;
+}

@@ -11,7 +11,8 @@ export default function StreamsSection() {
             avatar: "https://placehold.co/24x24/4ade80/ffffff?text=RT",
             isLive: true,
             url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
+            channel: "/channel/dsdsad",
+            videoId: '8JFoxuWgBld'
         },
         {
             id: 2,
@@ -21,7 +22,8 @@ export default function StreamsSection() {
             avatar: "https://placehold.co/24x24/f43f5e/ffffff?text=MF",
             isLive: true,
             url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
+            channel: "/channel/dsdsad",
+            videoId: "yil992qDQyY"
         },
         {
             id: 3,
@@ -31,7 +33,8 @@ export default function StreamsSection() {
             avatar: "https://placehold.co/24x24/4ade80/ffffff?text=RT",
             isLive: true,
             url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
+            channel: "/channel/dsdsad",
+            videoId: "dG4gbgaG4HC"
         },
         {
             id: 4,
@@ -41,7 +44,8 @@ export default function StreamsSection() {
             avatar: "https://placehold.co/24x24/3b82f6/ffffff?text=BG",
             isLive: false,
             url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
+            channel: "/channel/dsdsad",
+            videoId: "dG4gbgaG4HC"
         },
         {
             id: 5,
@@ -51,7 +55,8 @@ export default function StreamsSection() {
             avatar: "https://placehold.co/24x24/3b82f6/ffffff?text=BG",
             isLive: false,
             url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
+            channel: "/channel/dsdsad",
+            videoId: "dG4gbgaG4HC"
         },
         {
             id: 6,
@@ -61,7 +66,8 @@ export default function StreamsSection() {
             avatar: "https://placehold.co/24x24/3b82f6/ffffff?text=BG",
             isLive: false,
             url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
+            channel: "/channel/dsdsad",
+            videoId: "dG4gbgaG4HC"
         }
     ]
 
@@ -97,21 +103,33 @@ type Stream = {
     isLive: boolean;
     url: string;
     channel: string;
+    videoId: string;
 };
 
 function StreamCard({ stream }: { stream: Stream }) {
+
+    try {
+        const responce = fetch("http://localhost:5000/dsdasds/main.png");
+        console.log(responce);
+    }
+    catch (e) {
+        console.log(e)
+    }
+
+    console.log("fetching the adtra")
     return (
         <div className="bg-[#121212] rounded-xl overflow-hidden group">
             <div className="relative">
-                <Link href={stream?.url}>
+                <a href={stream?.url}>
                     <Image unoptimized
                         width={320}
                         height={180}
-                        src={stream.image}
+                        // src={stream.image}
+                        src={`http://localhost:5000/watch/${stream.videoId}/main.png`}
                         alt={stream.title}
                         className="w-full group-hover:scale-105 transition-transform duration-300"
                     />
-                </Link>
+                </a>
 
                 {/* {stream.isLive && (
                     <span className="absolute top-3 left-3 bg-red-600 text-xs font-semibold px-2 py-1 rounded-md">
@@ -120,9 +138,9 @@ function StreamCard({ stream }: { stream: Stream }) {
                 )} */}
             </div>
             <div className="p-4">
-                <Link href={stream?.url}>
+                <a href={stream?.url}>
                     <h4 className="font-bold truncate">{stream.title}</h4>
-                </Link>
+                </a>
                 {/* <div className="flex items-center mt-2 text-sm text-gray-400"> */}
                 <Link href={stream?.channel} className="flex items-center mt-2 text-sm text-gray-400">
                     <Image unoptimized
@@ -138,4 +156,8 @@ function StreamCard({ stream }: { stream: Stream }) {
             </div>
         </div>
     )
+}
+
+function async() {
+    throw new Error("Function not implemented.");
 }

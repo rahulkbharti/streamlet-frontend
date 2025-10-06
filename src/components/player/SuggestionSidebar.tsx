@@ -94,7 +94,7 @@ function SuggestionCard({ suggestion }: { suggestion: any }) {
     return (
         <div className="flex gap-4 group cursor-pointer hover:bg-gray-800/50 p-2 rounded-lg transition-all">
             <div className="w-40 relative flex-shrink-0">
-                <Link href={suggestion?.url}>
+                <a href={suggestion?.url}>
                     <Image unoptimized
                         width={320}
                         height={180}
@@ -102,7 +102,7 @@ function SuggestionCard({ suggestion }: { suggestion: any }) {
                         alt={suggestion.title}
                         className="rounded-lg w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                </Link>
+                </a>
 
                 {/* {suggestion.isLive && (
                     <span className="absolute top-2 left-2 bg-red-600 text-xs font-semibold px-2 py-1 rounded-md">
@@ -113,9 +113,9 @@ function SuggestionCard({ suggestion }: { suggestion: any }) {
 
             <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm line-clamp-2  transition-colors">
-                    <Link href={suggestion?.url} className="hover:text-purple-400">
+                    <a href={suggestion?.url} className="hover:text-purple-400">
                         {suggestion.title}
-                    </Link>
+                    </a>
                 </h4>
                 <p className="text-sm text-gray-400 mt-1">
                     <Link href={suggestion?.channel} className="hover:text-purple-400">

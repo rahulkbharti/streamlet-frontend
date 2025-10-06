@@ -1,5 +1,7 @@
 "use client";
+import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react'
 
 export default function StreamInfo() {
@@ -33,7 +35,7 @@ export default function StreamInfo() {
                             className="w-12 h-12 rounded-full"
                         />
                         <div className="flex-1">
-                            <p className="font-semibold">Mike Fisher</p>
+                            <p className="font-semibold"><Link href="#">Mike Fisher</Link></p>
                             <p className="text-sm text-gray-400">5,158,223 subscribers</p>
                         </div>
                         <button
@@ -57,7 +59,7 @@ export default function StreamInfo() {
                         className="p-2 rounded-full hover:bg-gray-700 transition-colors group"
                         suppressHydrationWarning={true}
                     >
-                        <LikeIcon />
+                        <ThumbsUp />
                         <span className="text-xs ml-1 group-hover:text-white">{likes.toLocaleString()}</span>
                     </button>
                     <button
@@ -66,7 +68,7 @@ export default function StreamInfo() {
                         className="p-2 rounded-full hover:bg-gray-700 transition-colors group"
                         suppressHydrationWarning={true}
                     >
-                        <DislikeIcon />
+                        <ThumbsDown />
                         <span className="text-xs ml-1 group-hover:text-white">{dislikes.toLocaleString()}</span>
                     </button>
                 </div>
@@ -75,18 +77,3 @@ export default function StreamInfo() {
     )
 }
 
-function LikeIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 18.734V6a2 2 0 012-2h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.293a2 2 0 012 2v1z" />
-        </svg>
-    )
-}
-
-function DislikeIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.738 3h4.017c.163 0 .326.02.485.06L17 5.266V18a2 2 0 01-2 2h-2.586a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 009 16.586H6.707a2 2 0 01-2-2v-1z" />
-        </svg>
-    )
-}

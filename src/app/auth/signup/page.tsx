@@ -12,10 +12,18 @@ export default function Signup() {
         agreeToTerms: false
     })
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         console.log('Signup attempt:', formData)
         // Handle signup logic here
+        const response = await fetch('http://localhost:4000/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        console.log('Response status:', response)
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

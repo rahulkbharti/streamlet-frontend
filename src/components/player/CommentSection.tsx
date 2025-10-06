@@ -1,3 +1,4 @@
+import { Reply, SendHorizonalIcon, ThumbsUpIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 
@@ -68,7 +69,7 @@ export default function CommentsSection() {
                     title="Send comment"
                     suppressHydrationWarning={true}
                 >
-                    <SendIcon />
+                    <SendHorizonalIcon />
                 </button>
             </form>
 
@@ -103,20 +104,22 @@ function Comment({ comment }: { comment: any }) {
                 <p className="text-gray-100 mb-2">{comment.text}</p>
                 <div className="flex items-center space-x-4 text-sm text-gray-400">
                     <button
+                        type='button'
                         onClick={() => setIsLiked(!isLiked)}
                         className={`flex items-center space-x-1 hover:text-white transition-colors ${isLiked ? 'text-purple-500' : ''
                             }`}
                         suppressHydrationWarning={true}
                     >
-                        <LikeIcon />
+                        <ThumbsUpIcon />
                         <span>{comment.likes + (isLiked ? 1 : 0)}</span>
                     </button>
-                    <button className="flex items-center space-x-1 hover:text-white transition-colors" suppressHydrationWarning={true} >
-                        <ReplyIcon />
+                    <button type='button' className="flex items-center space-x-1 hover:text-white transition-colors" suppressHydrationWarning={true} >
+                        <Reply />
                         <span>Reply</span>
                     </button>
                     {comment.replies > 0 && (
                         <button
+                            type='button'
                             onClick={() => setShowReplies(!showReplies)}
                             className="hover:text-white transition-colors"
                             suppressHydrationWarning={true}
@@ -127,29 +130,5 @@ function Comment({ comment }: { comment: any }) {
                 </div>
             </div>
         </div>
-    )
-}
-
-function SendIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-        </svg>
-    )
-}
-
-function LikeIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 18.734V6a2 2 0 012-2h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.293a2 2 0 012 2v1z" />
-        </svg>
-    )
-}
-
-function ReplyIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-        </svg>
     )
 }

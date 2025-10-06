@@ -17,16 +17,16 @@ import { Suspense } from 'react';
 
 
 function PlayerContent() {
-    const [hls, setHls] = useState('https://test-streams.mux.dev/test_001/stream.m3u8');
+    const [hls, setHls] = useState('');
     const searchParams = useSearchParams();
     useEffect(() => {
         const videoId = searchParams.get('v');
         if (videoId == "ID") {
             // In a real application, you might fetch the HLS URL based on the videoId
             // For this example, we'll just simulate it
-            setHls(`https://test-streams.mux.dev/test_001/stream.m3u8`);
+            setHls(`https://m3u8-backend-server.onrender.com/watch/LMYdMsiJyYP/master.m3u8`);
         } else {
-            setHls(`https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`);
+            setHls(`https://m3u8-backend-server.onrender.com/watch/o7iMTRAQJNd/master.m3u8`);
         }
     }, [searchParams]);
 

@@ -1,111 +1,128 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import 'plyr/dist/plyr.css';
 
-// Types for HLS.js and Plyr
-interface Hls {
-    loadSource(src: string): void;
-    attachMedia(element: HTMLVideoElement): void;
-    on(event: string, callback: () => void): void;
-    destroy(): void;
-}
+type Hls = import('hls.js').default;
+type Plyr = import('plyr').default;
 
-// interface Plyr {
-//     new(element: HTMLVideoElement, options?: PlyrOptions): Plyr;
-//     destroy(): void;
-// }
-
-interface PlyrOptions {
-    captions?: {
-        active: boolean;
-        update: boolean;
-        language: string;
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key: string]: any; // For other optional Plyr properties
-}
-
-// 1. Custom Hook that manages both HLS.js and Plyr
-const useHlsPlyr = (src: string, options?: PlyrOptions, setLoaded?: (loaded: boolean) => void) => {
+export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [isLoaded, setLoaded] = useState(false);
 
-    useEffect(() => {
-        let hls: Hls | null = null;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let plyr: any | null = null;
-
-        // Dynamically import libraries
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Promise.all([import('hls.js'), import('plyr')]).then(([HlsModule, PlyrModule]: [any, any]) => {
-            const Hls = HlsModule.default;
-            const Plyr = PlyrModule.default;
-            const videoElement = videoRef.current;
-
-            if (!videoElement) return;
-
-            // Check for HLS support
-            if (Hls.isSupported()) {
-                console.log("HLS is supported. Initializing hls.js...");
-                hls = new Hls();
-                if (!hls) return;
-                hls.loadSource(src);
-                hls.attachMedia(videoElement);
-
-                // Optional: Listen for HLS events
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    console.log("HLS manifest parsed");
-                    if (setLoaded) setLoaded(true);
-                });
-
-            } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                // For browsers with native HLS support (like Safari)
-                console.log("Native HLS support found.");
-                videoElement.src = src;
-            }
-
-            // Initialize Plyr
-            plyr = new Plyr(videoElement, options);
-        });
-        // Cleanup function
-        return () => {
-            // if (plyr) {
-            //     plyr.destroy();
-            //     console.log("Plyr instance destroyed.");
-            // }
-            // if (hls) {
-            //     hls.destroy();
-            //     console.log("HLS instance destroyed.");
-            // }
+    const options = useMemo(() => {
+        // ✅ FIX: More robust quality switching logic
+        const updateQuality = (newQuality: number) => {
             if (videoRef.current) {
-                videoRef.current.src = "";
+                const hls = (videoRef.current as any).hls as Hls | undefined;
+                if (!hls) {
+                    console.warn('HLS instance not found on video element.');
+                    return;
+                }
+
+                console.log(`User selected quality: ${newQuality}p`);
+
+                // When the user selects "Auto" (value 0)
+                if (newQuality === 0) {
+                    // Setting currentLevel to -1 enables adaptive bitrate switching
+                    hls.currentLevel = -1;
+                    console.log('Switched to Auto quality (ABR enabled).');
+                } else {
+                    // When the user selects a specific quality
+                    const levelIndex = hls.levels.findIndex(level => level.height === newQuality);
+                    if (levelIndex !== -1) {
+                        // Setting currentLevel to a specific index disables adaptive bitrate switching
+                        hls.currentLevel = levelIndex;
+                        console.log(`Locked to quality level ${levelIndex} (${newQuality}p).`);
+                    } else {
+                        console.warn(`Could not find a matching level for ${newQuality}p.`);
+                    }
+                }
             }
         };
 
-    }, [src, options]); // Re-run if src or options change
+        return {
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+            quality: {
+                default: 0,
+                options: [0],
+                forced: true,
+                onChange: updateQuality,
+            },
+            i18n: {
+                qualityLabel: { 0: "Auto" },
+            },
+        };
+    }, []);
 
-    return videoRef;
-};
+    useEffect(() => {
+        let hls: Hls | null = null;
+        let plyr: Plyr | null = null;
+        const videoElement = videoRef.current;
 
-// 2. HLS Video Player Component
-export default function HlsPlayer({ hlsSource = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }: { hlsSource?: string }) {
-    const [isLoaded, setLoaded] = useState(false);
-    // const hlsSource = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
-    // const hlsSource = "https://test-streams.mux.dev/test_001/stream.m3u8";
-    const videoRef = useHlsPlyr(hlsSource, {
-        captions: { active: true, update: true, language: 'en' },
-    }, setLoaded);
+        if (!videoElement || !hlsSource) {
+            return;
+        }
+
+        Promise.all([import('hls.js'), import('plyr')]).then(([HlsModule, PlyrModule]) => {
+            const Hls = HlsModule.default;
+            const Plyr = PlyrModule.default;
+
+            if (Hls.isSupported()) {
+                hls = new Hls();
+                (videoElement as any).hls = hls;
+
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    const availableQualities = hls!.levels.map(l => l.height);
+                    const newOptions = {
+                        ...options,
+                        quality: {
+                            ...options.quality,
+                            options: [0, ...availableQualities],
+                        },
+                    };
+                    plyr = new Plyr(videoElement, newOptions);
+                    setLoaded(true);
+                });
+
+                hls.loadSource(hlsSource);
+                hls.attachMedia(videoElement);
+
+            } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                videoElement.src = hlsSource;
+                plyr = new Plyr(videoElement, options);
+                setLoaded(true);
+            }
+        });
+
+        return () => {
+            if (plyr) plyr.destroy();
+            if (hls) hls.destroy();
+        };
+    }, [hlsSource, options]);
 
     return (
-        <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden  aspect-video" style={{ height: '100%', position: "relative", aspectRatio: '16/9' }}>
+        <div
+            className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden aspect-video"
+            style={{
+                position: "relative",
+                // Move the CSS variable here
+                ['--plyr-color-main' as any]: '#18A5FE'
+            }}
+        >
             <video
                 ref={videoRef}
-                className="plyr-react plyr video-fullsize"
+                className="plyr-react plyr"
                 playsInline
                 controls
-                width={"100%"}
-                height={"400px"}
                 autoPlay
-                style={{ backgroundColor: 'black', aspectRatio: '16/9', opacity: isLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    aspectRatio: '16/9',
+                    opacity: isLoaded ? 1 : 0,
+                    transition: 'opacity 0.3s ease-in-out',
+                    backgroundColor: 'black'
+                } as React.CSSProperties}
             />
         </div>
     );

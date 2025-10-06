@@ -9,10 +9,18 @@ export default function Login() {
         rememberMe: false
     })
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         console.log('Login attempt:', formData)
         // Handle login logic here
+        const responce = await fetch("http://localhost:4000/auth/login", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        console.log(responce)
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

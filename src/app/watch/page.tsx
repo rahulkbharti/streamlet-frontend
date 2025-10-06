@@ -6,19 +6,28 @@ import Header from '@/components/Header'
 import CommentsSection from '@/components/player/CommentSection'
 import StreamInfo from '@/components/player/StreamInfo'
 import SuggestionsSidebar from '@/components/player/SuggestionSidebar'
+import HlsPlayer from '@/components/player/VideoControls'
 import VideoControls from '@/components/player/VideoControls'
 import Sidebar from '@/components/Sidebar'
-import Image from 'next/image'
+// import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Suspense } from 'react';
+// import HlsPlayer from '../test2/player'
 
 
 function PlayerContent() {
+    const [hls, setHls] = useState('https://test-streams.mux.dev/test_001/stream.m3u8');
     const searchParams = useSearchParams();
     useEffect(() => {
         const videoId = searchParams.get('v');
-        console.log('The video ID has changed to:', videoId);
+        if (videoId == "ID") {
+            // In a real application, you might fetch the HLS URL based on the videoId
+            // For this example, we'll just simulate it
+            setHls(`https://test-streams.mux.dev/test_001/stream.m3u8`);
+        } else {
+            setHls(`https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`);
+        }
     }, [searchParams]);
 
     return (
@@ -32,24 +41,18 @@ function PlayerContent() {
                         {/* Video Player */}
                         <div className="bg-black rounded-2xl aspect-video relative flex items-center justify-center overflow-hidden">
                             {/* Video Placeholder */}
-                            <Image unoptimized
+                            {/* <Image unoptimized
                                 width={320}
                                 height={180}
-                                src="https://placehold.co/1280x720/1e293b/ffffff?text=Live+Stream"
+                                src="https://placehold.co/1280x720/1e293b/ffffff?text=LOADING+VIDEO..."
                                 alt="Live Stream"
                                 className="rounded-2xl w-full h-full object-cover"
-                            />
+                            /> */}
 
                             {/* Video Controls Overlay */}
-
-                            <VideoControls
-                            // isPlaying={isPlaying}
-                            // currentTime={currentTime}
-                            // volume={volume}
-                            // onPlayPause={handlePlayPause}
-                            // onSeek={handleSeek}
-                            // onVolumeChange={handleVolumeChange}
-                            />
+                            <div className="absolute left-0 right-0 bottom-0 top-0  bg-black/30 rounded-lg backdrop-blur-sm">
+                                <HlsPlayer hlsSource={hls} />
+                            </div>
                         </div>
 
                         {/* Stream Info */}

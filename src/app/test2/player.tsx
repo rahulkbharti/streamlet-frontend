@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'plyr/dist/plyr.css';
 
 // Types for HLS.js and Plyr
@@ -26,7 +26,7 @@ interface PlyrOptions {
 }
 
 // 1. Custom Hook that manages both HLS.js and Plyr
-const useHlsPlyr = (src: string, options?: PlyrOptions) => {
+const useHlsPlyr = (src: string, options?: PlyrOptions, setLoaded?: (loaded: boolean) => void) => {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
@@ -54,6 +54,7 @@ const useHlsPlyr = (src: string, options?: PlyrOptions) => {
                 // Optional: Listen for HLS events
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     console.log("HLS manifest parsed");
+                    if (setLoaded) setLoaded(true);
                 });
 
             } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
@@ -67,14 +68,14 @@ const useHlsPlyr = (src: string, options?: PlyrOptions) => {
         });
         // Cleanup function
         return () => {
-            if (plyr) {
-                plyr.destroy();
-                console.log("Plyr instance destroyed.");
-            }
-            if (hls) {
-                hls.destroy();
-                console.log("HLS instance destroyed.");
-            }
+            // if (plyr) {
+            //     plyr.destroy();
+            //     console.log("Plyr instance destroyed.");
+            // }
+            // if (hls) {
+            //     hls.destroy();
+            //     console.log("HLS instance destroyed.");
+            // }
             if (videoRef.current) {
                 videoRef.current.src = "";
             }
@@ -86,19 +87,25 @@ const useHlsPlyr = (src: string, options?: PlyrOptions) => {
 };
 
 // 2. HLS Video Player Component
-export default function HlsPlayer() {
-    const hlsSource = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+export default function HlsPlayer({ hlsSource = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }: { hlsSource?: string }) {
+    const [isLoaded, setLoaded] = useState(false);
+    // const hlsSource = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+    // const hlsSource = "https://test-streams.mux.dev/test_001/stream.m3u8";
     const videoRef = useHlsPlyr(hlsSource, {
         captions: { active: true, update: true, language: 'en' },
-    });
+    }, setLoaded);
 
     return (
-        <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden" style={{ height: '100%', position: "relative" }}>
+        <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden  aspect-video" style={{ height: '100%', position: "relative", aspectRatio: '16/9' }}>
             <video
                 ref={videoRef}
                 className="plyr-react plyr video-fullsize"
                 playsInline
                 controls
+                width={"100%"}
+                height={"400px"}
+                autoPlay
+                style={{ backgroundColor: 'black', aspectRatio: '16/9', opacity: isLoaded ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}
             />
         </div>
     );

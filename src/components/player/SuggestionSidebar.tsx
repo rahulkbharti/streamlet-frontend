@@ -30,12 +30,15 @@ type Stream = {
         __v: number;
     };
 };
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const CONTENT_URL = process.env.NEXT_PUBLIC_CONTENT_URL;
+
 export default function SuggestionsSidebar() {
     const [streams, setStreams] = useState<Stream[]>([]);
     useEffect(() => {
         // This will run only on the client side
         const FetchData = async () => {
-            const res = await fetch('http://localhost:4000/videos', { cache: 'no-store' });
+            const res = await fetch(`${API_URL}/videos`, { cache: 'no-store' });
             const streams: Stream[] = await res.json();
             setStreams(streams);
         }
@@ -67,7 +70,7 @@ function SuggestionCard({ suggestion }: { suggestion: any }) {
                     <Image unoptimized
                         width={320}
                         height={180}
-                        src={`http://localhost:5000/watch/${suggestion.videoId}/main.png`}
+                        src={`${CONTENT_URL}/watch/${suggestion.videoId}/main.png`}
                         alt={suggestion.title}
                         className="rounded-lg w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
                     />

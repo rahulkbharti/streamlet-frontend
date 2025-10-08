@@ -1,77 +1,46 @@
+"use client";
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react";
 
+type Stream = {
+    id: string;
+    title: string;
+    description: string;
+    videoId: string;
+    uploadStatus: string;
+    visibility: string;
+    createdAt: string;
+    channelId: string;
+    channel: {
+        id: string;
+        channelName: string;
+        description: string;
+        profilePictureUrl: string;
+        createdAt: string;
+        userId: string;
+    };
+    engagements?: {
+        _id: string;
+        viewCount: number;
+        likeCount: number;
+        dislikeCount: number;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+    };
+};
 export default function SuggestionsSidebar() {
-    const suggestions = [
-        {
-            id: 1,
-            title: "Let's fight 1 on 1",
-            streamer: "Helen5109 Fast",
-            viewers: "26,389M",
-            image: "https://placehold.co/160x90/22c55e/ffffff?text=FPS",
-            isLive: true,
-            category: "FPS",
-            url: "/watch?v=IDas",
-            channel: "/channel/dsdsad"
-
-        },
-        {
-            id: 2,
-            title: "Serious fight with Lea",
-            streamers: "MikeDanger, Eve031",
-            viewers: "16,426M View now",
-            image: "https://placehold.co/160x90/3b82f6/ffffff?text=Fantasy",
-            isLive: true,
-            category: "Fantasy",
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
-        },
-        {
-            id: 3,
-            title: "Meeting old friends",
-            streamer: "Mr.Rick Tomson",
-            viewers: "7,694M View now",
-            image: "https://placehold.co/160x90/f97316/ffffff?text=Action",
-            isLive: false,
-            category: "Action",
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
-        },
-        {
-            id: 4,
-            title: "RitaCH gun community",
-            streamers: "SabinaRay, Areg K71",
-            viewers: "0.911M View now",
-            image: "https://placehold.co/160x90/8b5cf6/ffffff?text=RPG",
-            isLive: true,
-            category: "RPG",
-            url: "/watch?v=IDsdsd",
-            channel: "/channel/dsdsad"
-        },
-        {
-            id: 5,
-            title: "Beauty meet with ELSA",
-            streamers: "MikeDanger, Eve031",
-            viewers: "6,765M View now",
-            image: "https://placehold.co/160x90/ec4899/ffffff?text=Beauty",
-            isLive: false,
-            category: "Beauty",
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
-        },
-        {
-            id: 6,
-            title: "Travel party with Miki",
-            streamer: "Miki Like",
-            viewers: "6,765M View now",
-            image: "https://placehold.co/160x90/10b981/ffffff?text=Travel",
-            isLive: false,
-            category: "Travel",
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad"
+    const [streams, setStreams] = useState<Stream[]>([]);
+    useEffect(() => {
+        // This will run only on the client side
+        const FetchData = async () => {
+            const res = await fetch('http://localhost:4000/videos', { cache: 'no-store' });
+            const streams: Stream[] = await res.json();
+            setStreams(streams);
         }
-    ]
-
+        FetchData();
+    }, []);
     return (
         <div className="w-full lg:w-1/3">
             {/* <div className="flex justify-between items-center mb-6">
@@ -82,8 +51,8 @@ export default function SuggestionsSidebar() {
             </div> */}
 
             <div className="space-y-4">
-                {suggestions.map(suggestion => (
-                    <SuggestionCard key={suggestion.id} suggestion={suggestion} />
+                {streams.map(stream => (
+                    <SuggestionCard key={stream.id} suggestion={stream} />
                 ))}
             </div>
         </div>
@@ -94,37 +63,52 @@ function SuggestionCard({ suggestion }: { suggestion: any }) {
     return (
         <div className="flex gap-4 group cursor-pointer hover:bg-gray-800/50 p-2 rounded-lg transition-all">
             <div className="w-40 relative flex-shrink-0">
-                <a href={suggestion?.url}>
+                <a href={`/watch?v=${suggestion.videoId}`}>
                     <Image unoptimized
                         width={320}
                         height={180}
-                        src={suggestion.image}
+                        src={`http://localhost:5000/watch/${suggestion.videoId}/main.png`}
                         alt={suggestion.title}
                         className="rounded-lg w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                 </a>
 
-                {/* {suggestion.isLive && (
-                    <span className="absolute top-2 left-2 bg-red-600 text-xs font-semibold px-2 py-1 rounded-md">
-                        LIVE
-                    </span>
-                )} */}
             </div>
 
             <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm line-clamp-2  transition-colors">
-                    <a href={suggestion?.url} className="hover:text-purple-400">
+                    <a href={`/watch?v=${suggestion.videoId}`} className="hover:text-purple-400">
                         {suggestion.title}
                     </a>
                 </h4>
                 <p className="text-sm text-gray-400 mt-1">
-                    <Link href={suggestion?.channel} className="hover:text-purple-400">
-                        {suggestion.streamers || suggestion.streamer}
+                    <Link href={`/channel/${suggestion.channel.id}`} className="hover:text-purple-400">
+                        {suggestion.channel.channelName}
                     </Link>
                 </p>
-                {suggestion.viewers && (
-                    <p className="text-sm text-gray-400">{suggestion.viewers}</p>
-                )}
+                <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
+                    <span>
+                        {suggestion.engagements ? `${suggestion.engagements.viewCount} viewers` : '0 viewers'}
+                    </span>
+                    <span>
+                        {suggestion.createdAt
+                            ? (() => {
+                                const diff = Date.now() - new Date(suggestion.createdAt).getTime();
+                                const mins = Math.floor(diff / (1000 * 60));
+                                const hours = Math.floor(diff / (1000 * 60 * 60));
+                                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+                                const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+                                if (years > 0) return `${years} year${years > 1 ? 's' : ''} ago`;
+                                if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
+                                if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+                                if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                                if (mins > 0) return `${mins} minute${mins > 1 ? 's' : ''} ago`;
+                                return 'just now';
+                            })()
+                            : '2 days ago'}
+                    </span>
+                </div>
             </div>
         </div>
     )

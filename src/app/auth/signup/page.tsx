@@ -11,12 +11,12 @@ export default function Signup() {
         confirmPassword: '',
         agreeToTerms: false
     })
-
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         console.log('Signup attempt:', formData)
         // Handle signup logic here
-        const response = await fetch('http://localhost:4000/auth/signup', {
+        const response = await fetch(`${API_URL}/auth/signup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

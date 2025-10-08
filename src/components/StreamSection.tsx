@@ -1,131 +1,74 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function StreamsSection() {
-    const streams = [
-        {
-            id: 1,
-            title: "Serious fight night with Rick",
-            streamer: "Mr.Rick Tomson",
-            image: "https://placehold.co/400x225/3b82f6/ffffff?text=Game+1",
-            avatar: "https://placehold.co/24x24/4ade80/ffffff?text=RT",
-            isLive: true,
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad",
-            videoId: '8JFoxuWgBld'
-        },
-        {
-            id: 2,
-            title: "Pumpkin Party in Orizona",
-            streamer: "Milena Foster",
-            image: "https://placehold.co/400x225/f97316/ffffff?text=Game+2",
-            avatar: "https://placehold.co/24x24/f43f5e/ffffff?text=MF",
-            isLive: true,
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad",
-            videoId: "yil992qDQyY"
-        },
-        {
-            id: 3,
-            title: "Serious fight night with Rick",
-            streamer: "Mr.Rick Tomson",
-            image: "https://placehold.co/400x225/8b5cf6/ffffff?text=Game+3",
-            avatar: "https://placehold.co/24x24/4ade80/ffffff?text=RT",
-            isLive: true,
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad",
-            videoId: "dG4gbgaG4HC"
-        },
-        {
-            id: 4,
-            title: "Serious fight night with Rick",
-            streamer: "Bob Game450",
-            image: "https://placehold.co/400x225/14b8a6/ffffff?text=Game+4",
-            avatar: "https://placehold.co/24x24/3b82f6/ffffff?text=BG",
-            isLive: false,
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad",
-            videoId: "dG4gbgaG4HC"
-        },
-        {
-            id: 5,
-            title: "Serious fight night with Rick",
-            streamer: "Bob Game450",
-            image: "https://placehold.co/400x225/14b8a6/ffffff?text=Game+4",
-            avatar: "https://placehold.co/24x24/3b82f6/ffffff?text=BG",
-            isLive: false,
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad",
-            videoId: "dG4gbgaG4HC"
-        },
-        {
-            id: 6,
-            title: "Serious fight night with Rick",
-            streamer: "Bob Game450",
-            image: "https://placehold.co/400x225/14b8a6/ffffff?text=Game+4",
-            avatar: "https://placehold.co/24x24/3b82f6/ffffff?text=BG",
-            isLive: false,
-            url: "/watch?v=ID",
-            channel: "/channel/dsdsad",
-            videoId: "dG4gbgaG4HC"
-        }
-    ]
+export default async function StreamsSection() {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+    // Fetch streams server-side
+    const res = await fetch(`${API_URL}/videos`, { cache: 'no-store' });
+    const streams: Stream[] = await res.json();
     return (
         <section className="mb-12">
-            <SectionHeader title="Streams of the day" />
+            {/* <SectionHeader title="Streams of the day" /> */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {streams.map(stream => (
                     <StreamCard key={stream.id} stream={stream} />
                 ))}
             </div>
         </section>
-    )
+    );
 }
 
-function SectionHeader({ title }: { title: string }) {
-    return (
-        <div className="flex justify-between items-center mb-4">
-            <h3 className="text-2xl font-bold">{title}</h3>
-            <a href="#" className="bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-full transition-colors">
-                View all
-            </a>
-        </div>
-    )
-}
+// function SectionHeader({ title }: { title: string }) {
+//     return (
+//         <div className="flex justify-between items-center mb-4">
+//             <h3 className="text-2xl font-bold">{title}</h3>
+//             <a href="#" className="bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-full transition-colors">
+//                 View all
+//             </a>
+//         </div>
+//     )
+// }
 
 type Stream = {
-    id: number;
+    id: string;
     title: string;
-    streamer: string;
-    image: string;
-    avatar: string;
-    isLive: boolean;
-    url: string;
-    channel: string;
+    description: string;
     videoId: string;
+    uploadStatus: string;
+    visibility: string;
+    createdAt: string;
+    channelId: string;
+    channel: {
+        id: string;
+        channelName: string;
+        description: string;
+        profilePictureUrl: string;
+        createdAt: string;
+        userId: string;
+    };
+    engagements?: {
+        _id: string;
+        viewCount: number;
+        likeCount: number;
+        dislikeCount: number;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+    };
 };
 
-function StreamCard({ stream }: { stream: Stream }) {
-
-    try {
-        const responce = fetch("http://localhost:5000/dsdasds/main.png");
-        console.log(responce);
-    }
-    catch (e) {
-        console.log(e)
-    }
-
-    console.log("fetching the adtra")
+async function StreamCard({ stream }: { stream: Stream }) {
+    const CONTENT_URL = process.env.NEXT_PUBLIC_CONTENT_URL;
     return (
         <div className="bg-[#121212] rounded-xl overflow-hidden group">
             <div className="relative">
-                <a href={stream?.url}>
+                <a href={`/watch?v=${stream.videoId}`}>
                     <Image unoptimized
                         width={320}
                         height={180}
                         // src={stream.image}
-                        src={`http://localhost:5000/watch/${stream.videoId}/main.png`}
+                        src={`${CONTENT_URL}/watch/${stream.videoId}/main.png`}
                         alt={stream.title}
                         className="w-full group-hover:scale-105 transition-transform duration-300"
                     />
@@ -138,21 +81,43 @@ function StreamCard({ stream }: { stream: Stream }) {
                 )} */}
             </div>
             <div className="p-4">
-                <a href={stream?.url}>
+                <a href={`/watch?v=${stream.videoId}`}>
                     <h4 className="font-bold truncate">{stream.title}</h4>
                 </a>
                 {/* <div className="flex items-center mt-2 text-sm text-gray-400"> */}
-                <Link href={stream?.channel} className="flex items-center mt-2 text-sm text-gray-400">
+                <Link href={`/channel/${stream.channel.id}`} className="flex items-center mt-2 text-sm text-gray-400">
                     <Image unoptimized
                         width={320}
                         height={180}
-                        src={stream.avatar}
-                        alt={stream.streamer}
+                        src={`https://placehold.co/100x100/6366f1/ffffff?text=${stream.channel.channelName.charAt(0)}`}
+                        alt={stream.title}
                         className="w-6 h-6 rounded-full mr-2"
                     />
-                    <span>{stream.streamer}</span>
+                    <span>{(stream.channel as unknown as { channelName: string })?.channelName}</span>
                 </Link>
-                {/* </div> */}
+                <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
+                    <span>
+                        {stream.engagements ? `${stream.engagements.viewCount} viewers` : '0 viewers'}
+                    </span>
+                    <span>
+                        {stream.createdAt
+                            ? (() => {
+                                const diff = Date.now() - new Date(stream.createdAt).getTime();
+                                const mins = Math.floor(diff / (1000 * 60));
+                                const hours = Math.floor(diff / (1000 * 60 * 60));
+                                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+                                const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+                                if (years > 0) return `${years} year${years > 1 ? 's' : ''} ago`;
+                                if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
+                                if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+                                if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                                if (mins > 0) return `${mins} minute${mins > 1 ? 's' : ''} ago`;
+                                return 'just now';
+                            })()
+                            : '2 days ago'}
+                    </span>
+                </div>
             </div>
         </div>
     )

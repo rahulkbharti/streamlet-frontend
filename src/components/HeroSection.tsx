@@ -23,7 +23,7 @@ function VideoPreview() {
     return (
         <div
             className="bg-cover bg-center rounded-2xl p-6 flex flex-col justify-between h-80"
-        // style={{ backgroundImage: "url('https://placehold.co/800x450/1e293b/ffffff?text=Dragon+Battle')" }}
+            style={{ backgroundImage: "url('feature1.png')" }}
         >
             <CountdownTimer />
             <VideoControls />

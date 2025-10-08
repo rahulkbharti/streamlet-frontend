@@ -1,6 +1,6 @@
 'use client'
 import Header from '@/components/Header'
-import CommentsSection from '@/components/player/CommentSection'
+// import CommentsSection from '@/components/player/CommentSection'
 import StreamInfo from '@/components/player/StreamInfo'
 import SuggestionsSidebar from '@/components/player/SuggestionSidebar'
 import HlsPlayer from '@/components/player/VideoControls'
@@ -10,18 +10,17 @@ import { useEffect, useState } from 'react'
 import { Suspense } from 'react';
 
 function PlayerContent() {
+    const CONTENT_URL = process.env.NEXT_PUBLIC_CONTENT_URL;
     const [hls, setHls] = useState('');
+    const [videoId, setVideoId] = useState<string>('');
     const searchParams = useSearchParams();
     useEffect(() => {
         const videoId = searchParams.get('v');
-        if (videoId == "ID") {
-            // In a real application, you might fetch the HLS URL based on the videoId
-            // For this example, we'll just simulate it
-            setHls(`https://m3u8-backend-server.onrender.com/watch/LMYdMsiJyYP/master.m3u8`);
-        } else {
-            setHls(`https://m3u8-backend-server.onrender.com/watch/o7iMTRAQJNd/master.m3u8`);
-        }
-    }, [searchParams]);
+        const url = `${CONTENT_URL}/watch/${videoId}/master.m3u8`;
+        console.log(url);
+        setVideoId(String(videoId));
+        setHls(url);
+    }, [searchParams, CONTENT_URL]);
 
     return (
         <div className="flex min-h-screen">
@@ -49,10 +48,8 @@ function PlayerContent() {
                         </div>
 
                         {/* Stream Info */}
-                        <StreamInfo />
+                        <StreamInfo videoId={videoId} />
 
-                        {/* Comments Section */}
-                        <CommentsSection />
                     </div>
 
                     {/* Suggestions Sidebar */}

@@ -1,26 +1,49 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useDispatch } from 'react-redux';
+import { login } from '@/store/authSlice';
+import { useRouter } from 'next/navigation';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Login() {
+    const dispatch = useDispatch();
+    const router = useRouter();
+
     const [formData, setFormData] = useState({
         email: '',
         password: '',
         rememberMe: false
     })
 
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         console.log('Login attempt:', formData)
         // Handle login logic here
-        const responce = await fetch("http://localhost:4000/auth/login", {
+        const response = await fetch(`${API_URL}/auth/login`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         })
-        console.log(responce)
+        if (response.ok) {
+            const data = await response.json() as { user: { id: string, email: string, username: string, name: string }, tokens: { accessToken: string, refreshToken: string } };
+            // console.log('Login successful:', data);
+            dispatch(login({
+                id: data.user.id,
+                email: data.user.email,
+                username: data.user.username,
+                name: data.user.name,
+                accessToken: data.tokens.accessToken,
+                refreshToken: data.tokens.refreshToken
+            }))
+            router.push("/")
+        } else {
+            alert("Login Failed");
+        }
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

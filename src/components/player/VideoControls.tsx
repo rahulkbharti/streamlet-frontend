@@ -5,7 +5,9 @@ import 'plyr/dist/plyr.css';
 type Hls = import('hls.js').default;
 type Plyr = import('plyr').default;
 
-export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
+const CONTENT_URL = process.env.NEXT_PUBLIC_CONTENT_URL;
+
+export default function HlsPlayer({ videoId }: { videoId?: string }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isLoaded, setLoaded] = useState(false);
 
@@ -52,15 +54,19 @@ export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
             i18n: {
                 qualityLabel: { 0: "Auto" },
             },
+            previewThumbnails: {
+                enabled: true,
+                src: `${CONTENT_URL}/watch/${videoId}/thumbnails.vtt`
+            }
         };
-    }, []);
+    }, [videoId]);
 
     useEffect(() => {
         let hls: Hls | null = null;
         let plyr: Plyr | null = null;
         const videoElement = videoRef.current;
 
-        if (!videoElement || !hlsSource) {
+        if (!videoElement || !videoId) {
             return;
         }
 
@@ -85,12 +91,13 @@ export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
                     plyr = new Plyr(videoElement, newOptions);
                     setLoaded(true);
                 });
-
-                hls.loadSource(hlsSource);
+                const URL = `${CONTENT_URL}/watch/${videoId}/master.m3u8`;
+                // console.log(URL);
+                hls.loadSource(URL);
                 hls.attachMedia(videoElement);
 
             } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                videoElement.src = hlsSource;
+                videoElement.src = videoId;
                 plyr = new Plyr(videoElement, options);
                 setLoaded(true);
             }
@@ -100,7 +107,7 @@ export default function HlsPlayer({ hlsSource }: { hlsSource?: string }) {
             if (plyr) plyr.destroy();
             if (hls) hls.destroy();
         };
-    }, [hlsSource, options]);
+    }, [videoId, options]);
 
     return (
         <div

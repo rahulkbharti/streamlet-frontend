@@ -20,29 +20,29 @@ export default function Login() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log('Login attempt:', formData)
+        // console.log('Login attempt:', formData)
         // Handle login logic here
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-        if (response.ok) {
-            const data = await response.json() as { user: { id: string, email: string, username: string, name: string }, tokens: { accessToken: string, refreshToken: string } };
-            // console.log('Login successful:', data);
+        try {
+            const axios = (await import('axios')).default;
+            const res = await axios.post(`${API_URL}/auth/login`, formData, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = res.data as { user: { id: string, email: string, username: string, name: string }, tokens: { accessToken: string, refreshToken: string } };
             dispatch(login({
                 id: data.user.id,
                 email: data.user.email,
                 username: data.user.username,
                 name: data.user.name,
                 accessToken: data.tokens.accessToken,
-                refreshToken: data.tokens.refreshToken
-            }))
-            router.push("/")
-        } else {
-            alert("Login Failed");
+                refreshToken: data.tokens.refreshToken,
+                exp: Date.now() + 15 * 60 * 1000
+            }));
+            router.push("/");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            console.error("Login error:", error);
+            const message = error?.response?.data?.message ?? error?.message ?? "Login Failed";
+            alert(message);
         }
     }
 

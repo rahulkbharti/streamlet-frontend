@@ -1,34 +1,28 @@
+import api from "@/apis/api";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function StreamsSection() {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    try {
+        const responce = await api.get(`/videos`);
+        const streams: Stream[] = await responce.data;
+        return (
+            <section className="mb-12">
+                {/* <SectionHeader title="Streams of the day" /> */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {streams.map(stream => (
+                        <StreamCard key={stream.id} stream={stream} />
+                    ))}
+                </div>
+            </section>
+        );
+    } catch (e) {
+        console.error(e);
+        return <div className="text-white">Failed to load streams.</div>;
+    }
 
-    // Fetch streams server-side
-    const res = await fetch(`${API_URL}/videos`, { cache: 'no-store' });
-    const streams: Stream[] = await res.json();
-    return (
-        <section className="mb-12">
-            {/* <SectionHeader title="Streams of the day" /> */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {streams.map(stream => (
-                    <StreamCard key={stream.id} stream={stream} />
-                ))}
-            </div>
-        </section>
-    );
 }
 
-// function SectionHeader({ title }: { title: string }) {
-//     return (
-//         <div className="flex justify-between items-center mb-4">
-//             <h3 className="text-2xl font-bold">{title}</h3>
-//             <a href="#" className="bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-full transition-colors">
-//                 View all
-//             </a>
-//         </div>
-//     )
-// }
 
 type Stream = {
     id: string;

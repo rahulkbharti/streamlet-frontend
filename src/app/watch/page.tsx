@@ -10,40 +10,27 @@ import { useEffect, useState } from 'react'
 import { Suspense } from 'react';
 
 function PlayerContent() {
-    const CONTENT_URL = process.env.NEXT_PUBLIC_CONTENT_URL;
-    const [hls, setHls] = useState('');
+    // const [hls, setHls] = useState('');
     const [videoId, setVideoId] = useState<string>('');
     const searchParams = useSearchParams();
     useEffect(() => {
         const videoId = searchParams.get('v');
-        const url = `${CONTENT_URL}/watch/${videoId}/master.m3u8`;
-        console.log(url);
         setVideoId(String(videoId));
-        setHls(url);
-    }, [searchParams, CONTENT_URL]);
+    }, [searchParams]);
 
     return (
         <div className="flex min-h-screen">
             <Sidebar />
-            <main className="flex-1 main-content-bg rounded-l-3xl p-6 md:p-10">
+            <main className="flex-1 main-content-bg p-10 md:p-10 bg-black text-gray-100">
                 <Header />
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Main Video Content */}
                     <div className="w-full lg:w-2/3">
                         {/* Video Player */}
                         <div className="bg-black rounded-2xl aspect-video relative flex items-center justify-center overflow-hidden">
-                            {/* Video Placeholder */}
-                            {/* <Image unoptimized
-                                width={320}
-                                height={180}
-                                src="https://placehold.co/1280x720/1e293b/ffffff?text=LOADING+VIDEO..."
-                                alt="Live Stream"
-                                className="rounded-2xl w-full h-full object-cover"
-                            /> */}
-
                             {/* Video Controls Overlay */}
                             <div className="absolute left-0 right-0 bottom-0 top-0  bg-black/30 rounded-lg backdrop-blur-sm">
-                                <HlsPlayer hlsSource={hls} />
+                                <HlsPlayer videoId={videoId} />
                             </div>
                         </div>
 

@@ -1,8 +1,18 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import api from "@/apis/api";
+import { logout } from "@/store/authSlice";
 
 // The main, cleaned-up Header component
 export default function Header() {
@@ -27,6 +37,7 @@ export default function Header() {
                     <a href="#" className="hover:text-white transition-colors">GAMES</a>
                     <a href="#" className="hover:text-white transition-colors">TEAMS</a>
                 </nav>
+
             </div>
 
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
@@ -65,7 +76,7 @@ function SearchBar() {
             <input
                 type="text"
                 placeholder="Search [coming Soon]"
-                className="bg-[#121212] rounded-full py-2 pl-10 pr-4 w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="border-gray-900 rounded-full py-2 pl-10 pr-4 w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
         </div>
     );
@@ -85,19 +96,42 @@ function NotificationButton() {
 
 // UserProfile Component (Simplified - no internal state needed)
 function UserProfile({ username }: { username?: string }) {
+    const dispatch = useDispatch();
     // The initial can be derived directly from props, no need for useState/useEffect
     const initial = (username?.[0] ?? 'U').toUpperCase();
-
+    const handleLogout = async () => {
+        const response = await api.post('/auth/logout');
+        if (response.status === 200) {
+            window.location.href = '/';
+            dispatch(logout());
+        }
+    }
     return (
-        <div className="flex items-center space-x-2" onClick={() => { alert('Implementing Soon') }}>
-            <Image unoptimized
-                width={40} height={40}
-                src={`https://placehold.co/40x40/7c3aed/ffffff?text=${initial}`}
-                alt="User avatar"
-                className="rounded-full w-10 h-10 border-2 border-purple-500 cursor-pointer"
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <div className="flex items-center space-x-2">
+                    <Image unoptimized
+                        width={40} height={40}
+                        src={`https://placehold.co/40x40/7c3aed/ffffff?text=${initial}`}
+                        alt="User avatar"
+                        className="rounded-full w-10 h-10 border-2 border-purple-500 cursor-pointer"
+                    />
+                </div>
+            </DropdownMenuTrigger>
 
-            />
-            <span className="hidden md:block cursor-pointer">{username || "User"}</span>
-        </div>
+            {/* Add align="end" here */}
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel className="font-semibold">{(username || "User").toUpperCase()}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => { alert('Implementing Soon') }}>Settings</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href="#" onClick={handleLogout}>Logout</Link>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

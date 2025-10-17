@@ -1,7 +1,9 @@
 "use client";
+import api from "@/apis/api";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react";
+
 
 type Stream = {
     id: string;
@@ -30,28 +32,54 @@ type Stream = {
         __v: number;
     };
 };
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const CONTENT_URL = process.env.NEXT_PUBLIC_CONTENT_URL;
 
 export default function SuggestionsSidebar() {
-    const [streams, setStreams] = useState<Stream[]>([]);
-    useEffect(() => {
-        // This will run only on the client side
-        const FetchData = async () => {
-            const res = await fetch(`${API_URL}/videos`, { cache: 'no-store' });
-            const streams: Stream[] = await res.json();
-            setStreams(streams);
+    const { data: streams = [], isLoading } = useQuery<Stream[]>({
+        queryKey: ['suggestedStreams'],
+        queryFn: async () => {
+            const response = await api.get(`/videos`);
+            console.log(response);
+            return response.data as Stream[];
         }
-        FetchData();
-    }, []);
+    });
+    if (isLoading) {
+        const placeholders = Array.from({ length: 5 });
+        return (
+            <div className="w-full lg:w-1/3">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold">You may like</h3>
+                    <div className="text-sm text-gray-400">View all</div>
+                </div>
+
+                <div className="space-y-4">
+                    {placeholders.map((_, i) => (
+                        <div key={i} className="flex gap-4 group p-2 rounded-lg">
+                            <div className="w-40 h-24 bg-gray-700/60 rounded-lg flex-shrink-0 animate-pulse" />
+
+                            <div className="flex-1 min-w-0">
+                                <div className="h-4 bg-gray-700/60 rounded w-3/4 mb-2 animate-pulse" />
+                                <div className="h-3 bg-gray-700/60 rounded w-1/2 mb-3 animate-pulse" />
+                                <div className="flex justify-between items-center mt-2 text-xs">
+                                    <div className="h-3 bg-gray-700/60 rounded w-1/4 animate-pulse" />
+                                    <div className="h-3 bg-gray-700/60 rounded w-1/6 animate-pulse" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="w-full lg:w-1/3">
-            {/* <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">You may like</h3>
                 <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                     View all
                 </a>
-            </div> */}
+            </div>
 
             <div className="space-y-4">
                 {streams.map(stream => (

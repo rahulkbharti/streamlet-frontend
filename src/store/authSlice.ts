@@ -7,6 +7,7 @@ export type LoginData = {
   username: string;
   email: string;
   name: string;
+  exp: number; // Expiration time in milliseconds since epoch
 };
 
 export type AuthState = {

@@ -26,7 +26,7 @@ export default function Sidebar() {
                 <Link href="/" className="p-3 bg-purple-600/20 text-purple-400 rounded-lg">
                     <HomeIcon />
                 </Link>
-                <Link href="/create" className="p-3 text-gray-400 hover:bg-gray-700/50 rounded-lg transition-colors">
+                <Link href="/upload" className="p-3 text-gray-400 hover:bg-gray-700/50 rounded-lg transition-colors">
                     <PlusIcon />
                 </Link>
                 {/* <Link href="#" className="p-3 text-gray-400 hover:bg-gray-700/50 rounded-lg transition-colors">

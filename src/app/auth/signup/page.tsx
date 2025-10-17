@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import axios from 'axios';
 
 export default function Signup() {
     const [formData, setFormData] = useState({
@@ -16,12 +17,8 @@ export default function Signup() {
         e.preventDefault()
         console.log('Signup attempt:', formData)
         // Handle signup logic here
-        const response = await fetch(`${API_URL}/auth/signup`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+        const response = await axios.post(`${API_URL}/auth/signup`, formData, {
+            headers: { 'Content-Type': 'application/json' }
         })
         console.log('Response status:', response)
     }

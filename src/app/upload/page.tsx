@@ -1,7 +1,8 @@
 'use client'
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import Link from 'next/link'
-// import { useSelector } from 'react-redux'
+import api from '@/apis/api'
+import { io, Socket } from "socket.io-client";
 
 // Types
 interface UploadState {
@@ -23,6 +24,19 @@ interface UploadProgress {
 }
 
 type UploadStep = 'getting url' | 'uploading on b2' | 'downloading on worker' | 'processing on worker' | 'uploading on b2 from worker' | 'complete'
+
+interface UploadResult {
+    success: boolean;
+    key: string;
+    videoId: string;
+}
+
+interface VideoProgressData {
+    resolution?: string;
+    progress?: number;
+    status?: string;
+    videoId?: string;
+}
 
 // Constants
 const RESOLUTIONS = ['144p', '240p', '360p', '480p', '720p', '1080p'] as const
@@ -76,7 +90,7 @@ const useFileUpload = () => {
         setIsDragOver(false)
 
         const file = e.dataTransfer.files[0]
-        if (file) {
+        if (file && file.type.startsWith('video/')) {
             handleFileSelect(file, setFormData)
         }
     }, [handleFileSelect])
@@ -93,7 +107,7 @@ const useFileUpload = () => {
 }
 
 const useUploadProgress = () => {
-    const [currentStep, setCurrentStep] = useState<UploadStep>('complete')
+    const [currentStep, setCurrentStep] = useState<UploadStep>('getting url')
     const [uploadProgress, setUploadProgress] = useState<UploadProgress>(INITIAL_UPLOAD_PROGRESS)
     const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({})
     const [completedResolutions, setCompletedResolutions] = useState<string[]>([])
@@ -110,6 +124,13 @@ const useUploadProgress = () => {
         setCompletedResolutions(prev => [...prev, resolution])
     }, [])
 
+    const resetProgress = useCallback(() => {
+        setCurrentStep('getting url')
+        setUploadProgress(INITIAL_UPLOAD_PROGRESS)
+        setProcessingProgress({})
+        setCompletedResolutions([])
+    }, [])
+
     return {
         currentStep,
         uploadProgress,
@@ -118,46 +139,28 @@ const useUploadProgress = () => {
         setCurrentStep,
         updateUploadProgress,
         updateProcessingProgress,
-        completeResolution
+        completeResolution,
+        resetProgress
     }
 }
 
 // Utility Functions
-// const formatFileSize = (bytes: number): string => {
-//     if (bytes === 0) return '0 Bytes'
-//     const k = 1024
-//     const sizes = ['Bytes', 'KB', 'MB', 'GB']
-//     const i = Math.floor(Math.log(bytes) / Math.log(k))
-//     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-// }
-
-// Mock API functions
-const mockGetUploadUrl = async (): Promise<{ uploadUrl: string; videoId: string }> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                uploadUrl: 'https://mock-s3-upload-url.com/upload',
-                videoId: `video_${Date.now()}`
-            })
-        }, 1000)
-    })
-}
-
-const mockUploadToS3 = async (_uploadUrl: string, _file: File): Promise<void> => {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(), 100)
-    })
+const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // Main Component
-export default function Upload() {
-    // const router = useRouter()
+const UploadPage = () => {
     const fileInputRef = useRef<HTMLInputElement>(null)
-
     const [formData, setFormData] = useState<UploadState>(INITIAL_UPLOAD_STATE)
-    const [isUploading, setIsUploading] = useState(true)
+    const [isUploading, setIsUploading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [previewUrl, _setPreviewUrl] = useState<string>('')
+    const socketRef = useRef<Socket | null>(null)
 
     const {
         videoFile,
@@ -175,11 +178,122 @@ export default function Upload() {
         processingProgress,
         completedResolutions,
         setCurrentStep,
-        updateUploadProgress
+        updateUploadProgress,
+        updateProcessingProgress,
+        completeResolution,
+        resetProgress
     } = useUploadProgress()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // const { isAuthenticated } = useSelector((state: any) => state.auth)
+    // Socket.io connection
+    useEffect(() => {
+        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL
+        if (!socketUrl) {
+            console.error('Socket URL not configured')
+            return
+        }
+
+        socketRef.current = io(socketUrl)
+
+        socketRef.current.on('connect', () => {
+            console.log('Connected to server with ID:', socketRef.current?.id)
+        })
+        socketRef.current.on('welcome', (data: { message: string; socketId: string }) => {
+            console.log('Server says:', data.message, 'Your Socket ID:', data.socketId)
+        })
+
+        socketRef.current.on('video-progress', (data: VideoProgressData) => {
+            console.log('Progress update received:', data)
+
+            if (data.resolution && data.progress !== undefined) {
+                updateProcessingProgress(data.resolution, data.progress)
+
+                if (data.progress >= 100) {
+                    completeResolution(data.resolution)
+                }
+            }
+
+            // Update steps based on progress
+            if (data.status === 'processing') {
+                setCurrentStep('processing on worker')
+            } else if (data.status === 'uploading') {
+                setCurrentStep('uploading on b2 from worker')
+            } else if (data.status === 'completed') {
+                setCurrentStep('complete')
+                setIsUploading(false)
+            }
+        })
+
+        socketRef.current.on('error', (error: { message: string }) => {
+            setError(error.message)
+            setIsUploading(false)
+        })
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect()
+            }
+        }
+    }, [updateProcessingProgress, completeResolution, setCurrentStep])
+
+    const uploadingFile = async (file: File): Promise<UploadResult> => {
+        try {
+            const response = await api.post("/auth/get-upload-url", {
+                title: formData.title,
+                description: formData.description
+            })
+
+            const data = response.data as { key: string; videoId: string; uploadUrl: string }
+            console.log("Got the URL", response)
+
+            return await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest()
+
+                // Progress tracking
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (event.lengthComputable) {
+                        const percentComplete = (event.loaded / event.total) * 100
+
+                        updateUploadProgress({
+                            uploadedBytes: event.loaded,
+                            totalBytes: event.total,
+                            percentage: percentComplete
+                        })
+
+                        console.log(`Uploading: ${(event.loaded / (1024 * 1024)).toFixed(2)}MB / ${(event.total / (1024 * 1024)).toFixed(2)}MB (${Math.round(percentComplete)}%)`)
+                    }
+                })
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        console.log('✅ File uploaded successfully')
+                        resolve({
+                            success: true,
+                            key: data.key,
+                            videoId: data.videoId
+                        })
+                    } else {
+                        reject(new Error(`Upload failed: ${xhr.status} - ${xhr.responseText}`))
+                    }
+                })
+
+                xhr.addEventListener('error', () => {
+                    reject(new Error('Upload failed due to network error'))
+                })
+
+                xhr.addEventListener('abort', () => {
+                    reject(new Error('Upload was cancelled'))
+                })
+
+                xhr.open('PUT', data.uploadUrl)
+                xhr.setRequestHeader('Content-Type', file.type || 'video/mp4')
+                setCurrentStep('uploading on b2')
+                xhr.send(file)
+            })
+        } catch (error) {
+            console.error('Upload error:', error)
+            throw error
+        }
+    }
 
     // Memoized values
     const stepMessage = useMemo(() => {
@@ -235,32 +349,39 @@ export default function Upload() {
         try {
             setIsUploading(true)
             setError(null)
+            resetProgress()
             setCurrentStep('getting url')
 
-            const { uploadUrl: signedUrl } = await mockGetUploadUrl()
-            setCurrentStep('uploading on b2')
+            const result = await uploadingFile(videoFile)
+            if (result.success) {
+                const response = await api.post("/auth/schedule-job", {
+                    key: result.key,
+                    videoId: result.videoId,
+                    socketId: socketRef.current?.id
+                })
 
-            updateUploadProgress({
-                uploadedBytes: 0,
-                totalBytes: videoFile.size,
-                percentage: 0,
-                uploadedSegments: 0,
-                totalSegments: 0
-            })
-
-            await mockUploadToS3(signedUrl, videoFile)
+                if (response.status >= 200 && response.status < 300) {
+                    setCurrentStep('downloading on worker')
+                } else {
+                    throw new Error('Failed to schedule video processing')
+                }
+            }
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Upload failed')
+            const errorMessage = err instanceof Error ? err.message : 'Upload failed'
+            setError(errorMessage)
             setIsUploading(false)
+            console.error('Upload error:', err)
         }
     }
 
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) {
+        if (file && file.type.startsWith('video/')) {
             handleFileSelect(file, setFormData)
             setError(null)
+        } else if (file) {
+            setError('Please select a valid video file')
         }
     }, [handleFileSelect])
 
@@ -283,6 +404,16 @@ export default function Upload() {
         if (processingProgress[resolution] !== undefined) return 'processing'
         return 'pending'
     }, [completedResolutions, processingProgress])
+
+    const resetForm = useCallback(() => {
+        setFormData(INITIAL_UPLOAD_STATE)
+        setVideoFile(null)
+        setError(null)
+        resetProgress()
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
+    }, [setVideoFile, resetProgress])
 
     // Render Functions
     const renderStepContent = () => {
@@ -370,6 +501,13 @@ export default function Upload() {
                             <p className="text-green-300 text-sm">
                                 Your video has been uploaded and processed successfully.
                             </p>
+                            <button
+                                type="button"
+                                onClick={resetForm}
+                                className="mt-3 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-colors"
+                            >
+                                Upload Another Video
+                            </button>
                         </div>
 
                         {previewUrl && (
@@ -436,7 +574,7 @@ export default function Upload() {
                             className="hidden"
                         />
 
-                        {true ? (
+                        {!videoFile ? (
                             <div
                                 onClick={() => fileInputRef.current?.click()}
                                 onDragOver={handleDragOver}
@@ -466,7 +604,7 @@ export default function Upload() {
                         ) : (
                             <div className="bg-gray-700/50 p-6 rounded-xl border border-gray-600">
                                 <div className="flex items-center justify-between">
-                                    {/* <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-4">
                                         <VideoIcon className="w-8 h-8 text-green-400" />
                                         {videoFile ? (
                                             <div>
@@ -474,7 +612,7 @@ export default function Upload() {
                                                 <p className="text-sm text-gray-400">{formatFileSize(videoFile.size)}</p>
                                             </div>
                                         ) : null}
-                                    </div> */}
+                                    </div>
                                     <button
                                         type="button"
                                         onClick={() => setVideoFile(null)}
@@ -494,7 +632,7 @@ export default function Upload() {
                                     {stepIcon}
                                     <div className="flex-1">
                                         <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-white font-medium capitalize">{currentStep}</span>
+                                            <span className="text-white font-medium capitalize">{currentStep.replace(/-/g, ' ')}</span>
                                             <span className="text-gray-400">
                                                 {['uploading on b2', 'downloading on worker'].includes(currentStep)
                                                     ? `${Math.round(uploadProgress.percentage)}%`
@@ -546,7 +684,7 @@ export default function Upload() {
                                             <div key={step} className="flex flex-col items-center">
                                                 <div className={`w-3 h-3 rounded-full ${isActive ? colors[step] : isCompleted ? 'bg-green-400' : 'bg-gray-600'
                                                     }`} />
-                                                <span className="text-xs text-gray-400 mt-1 capitalize">{step}</span>
+                                                <span className="text-xs text-gray-400 mt-1 capitalize">{step.replace(/-/g, ' ')}</span>
                                             </div>
                                         )
                                     })}
@@ -639,7 +777,9 @@ export default function Upload() {
     )
 }
 
-// New Segment Icon
+export default UploadPage
+
+// Icons (keep the same as your original)
 function SegmentIcon({ className }: { className: string }) {
     return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -648,7 +788,6 @@ function SegmentIcon({ className }: { className: string }) {
     )
 }
 
-// Icons
 function UploadIcon({ className }: { className: string }) {
     return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">

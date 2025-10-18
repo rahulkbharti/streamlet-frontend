@@ -25,6 +25,7 @@ type CommentType = {
 
 const CommentsSectionComponent = ({ videoId }: { videoId: string }) => {
     const queryClient = useQueryClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { isAuthenticated } = useSelector((state: any) => state.auth);
     // console.log('isAuthenticated:', isAuthenticated);
     // Geting the comments 

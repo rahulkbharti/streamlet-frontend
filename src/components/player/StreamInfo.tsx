@@ -46,6 +46,7 @@ import { useSelector } from 'react-redux';
 
 const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
     const queryClient = useQueryClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { isAuthenticated } = useSelector((state: any) => state.auth)
 
     /// Get Engagments

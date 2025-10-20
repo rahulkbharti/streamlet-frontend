@@ -44,7 +44,7 @@ export default function HlsPlayer({ videoId }: { videoId?: string }) {
         };
 
         return {
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
             quality: {
                 default: 0,
                 options: [0],

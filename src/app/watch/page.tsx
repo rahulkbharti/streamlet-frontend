@@ -20,8 +20,7 @@ function PlayerContent() {
 
     return (
         <div className="flex min-h-screen">
-            <Sidebar />
-            <main className="flex-1 main-content-bg p-10 md:p-10 bg-black text-gray-100">
+            <main className="flex-1 main-content-bg p-5 md:p-7 bg-black text-gray-100">
                 <Header />
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Main Video Content */}
@@ -29,7 +28,7 @@ function PlayerContent() {
                         {/* Video Player */}
                         <div className="bg-black rounded-2xl aspect-video relative flex items-center justify-center overflow-hidden">
                             {/* Video Controls Overlay */}
-                            <div className="absolute left-0 right-0 bottom-0 top-0  bg-black/30 rounded-lg backdrop-blur-sm">
+                            <div className="absolute left-0 right-0 bottom-0 top-0 bg-black/30 rounded-lg backdrop-blur-sm">
                                 <HlsPlayer videoId={videoId} />
                             </div>
                         </div>

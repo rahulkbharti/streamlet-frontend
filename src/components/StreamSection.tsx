@@ -1,25 +1,56 @@
+"use client";
 import api from "@/apis/api";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function StreamsSection() {
-    try {
-        const responce = await api.get(`/videos`);
-        const streams: Stream[] = await responce.data;
+export default function StreamsSection() {
+    const { data: streams, isLoading } = useQuery({
+        queryKey: ["videos-index"],
+        queryFn: async () => {
+            try {
+                const responce = await api.get("/videos");
+                console.log(responce)
+                return responce.data;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    })
+    if (isLoading) {
         return (
-            <section className="mb-12">
-                {/* <SectionHeader title="Streams of the day" /> */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {streams.map(stream => (
-                        <StreamCard key={stream.id} stream={stream} />
-                    ))}
-                </div>
-            </section>
-        );
-    } catch (e) {
-        console.error(e);
-        return <div className="text-white">Failed to load streams.</div>;
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                    <div key={idx} className="bg-[#121212] rounded-xl overflow-hidden animate-pulse">
+                        <div className="h-40 w-full bg-gray-800 rounded-lg mb-4" />
+                        <div className="p-4">
+                            <div className="h-6 bg-gray-700 rounded w-3/4 mb-2" />
+                            <div className="flex items-center mt-2">
+                                <div className="w-6 h-6 bg-gray-700 rounded-full mr-2" />
+                                <div className="h-4 bg-gray-700 rounded w-1/3" />
+                            </div>
+                            <div className="flex justify-between items-center mt-2">
+                                <div className="h-3 bg-gray-700 rounded w-1/4" />
+                                <div className="h-3 bg-gray-700 rounded w-1/4" />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        )
     }
+    console.log(streams)
+    return (
+        <section className="mb-12">
+            {/* <SectionHeader title="Streams of the day" /> */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {streams.map((stream: any) => (
+                    <StreamCard key={stream.id} stream={stream} />
+                ))}
+            </div>
+        </section>
+    );
 
 }
 
@@ -52,20 +83,22 @@ type Stream = {
     };
 };
 
-async function StreamCard({ stream }: { stream: Stream }) {
+function StreamCard({ stream }: { stream: Stream }) {
     const CONTENT_URL = process.env.NEXT_PUBLIC_CONTENT_URL;
     return (
         <div className="bg-[#121212] rounded-xl overflow-hidden group">
-            <div className="relative">
+            <div className="relative flex-shrink-0">
                 <a href={`/watch?v=${stream.videoId}`}>
-                    <Image unoptimized
-                        width={320}
-                        height={180}
-                        // src={stream.image}
-                        src={`${CONTENT_URL}/watch/${stream.videoId}/main.png`}
-                        alt={stream.title}
-                        className="w-full group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <div className="w-full aspect-[16/9]">
+                        <Image
+                            unoptimized
+                            width={320}
+                            height={180}
+                            src={`${CONTENT_URL}/watch/${stream.videoId}/main.png`}
+                            alt={stream.title}
+                            className="object-cover group-hover:scale-105 transition-transform duration-300 w-full h-full"
+                        />
+                    </div>
                 </a>
 
                 {/* {stream.isLive && (

@@ -85,30 +85,30 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
         <div className="mt-6 animate-pulse" aria-busy="true" aria-label="Loading">
             <div className="flex justify-between items-start">
                 <div className="flex-1">
-                    <div className="h-6 bg-gray-700 rounded w-3/4 mb-4" />
-                    <div className="flex items-center mt-4 space-x-4">
-                        <div className="w-12 h-12 rounded-full bg-gray-700" />
-                        <div className="flex flex-col flex-1">
-                            <div className="h-4 bg-gray-700 rounded w-32 mb-2" />
-                            <div className="h-3 bg-gray-700 rounded w-20" />
+                    <div className="h-6 bg-gray-700 rounded w-3/4 mb-4 sm:h-5 sm:w-2/3" />
+                    <div className="flex items-center mt-4 space-x-4 sm:space-x-2 flex-wrap sm:flex-nowrap">
+                        <div className="w-12 h-12 rounded-full bg-gray-700 sm:w-8 sm:h-8" />
+                        <div className="flex flex-col flex-1 min-w-0">
+                            <div className="h-4 bg-gray-700 rounded w-32 mb-2 sm:h-3 sm:w-20" />
+                            <div className="h-3 bg-gray-700 rounded w-20 sm:h-2 sm:w-14" />
                         </div>
-                        <div className="flex items-center space-x-3 justify-end">
-                            <div className="h-9 bg-gray-700 rounded-full w-24" />
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-gray-700 rounded-full" />
-                                <div className="w-10 h-10 bg-gray-700 rounded-full" />
+                        <div className="flex items-center space-x-3 justify-end flex-1 sm:space-x-1">
+                            <div className="h-9 bg-gray-700 rounded-full w-24 sm:h-6 sm:w-16" />
+                            <div className="flex items-center space-x-3 sm:space-x-1">
+                                <div className="w-10 h-10 bg-gray-700 rounded-full sm:w-7 sm:h-7" />
+                                <div className="w-10 h-10 bg-gray-700 rounded-full sm:w-7 sm:h-7" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-col items-start mt-2 bg-gray-900 rounded-lg p-4 border border-gray-800 w-full">
-                <div className="h-3 bg-gray-700 rounded w-1/4 mb-3" />
+            <div className="flex flex-col items-start mt-2 bg-gray-900 rounded-lg p-4 border border-gray-800 w-full sm:p-2">
+                <div className="h-3 bg-gray-700 rounded w-1/4 mb-3 sm:h-2 sm:w-1/3" />
                 <div className="space-y-2 w-full">
-                    <div className="h-3 bg-gray-700 rounded w-full" />
-                    <div className="h-3 bg-gray-700 rounded w-5/6" />
-                    <div className="h-3 bg-gray-700 rounded w-4/6" />
+                    <div className="h-3 bg-gray-700 rounded w-full sm:h-2" />
+                    <div className="h-3 bg-gray-700 rounded w-5/6 sm:h-2 sm:w-4/6" />
+                    <div className="h-3 bg-gray-700 rounded w-4/6 sm:h-2 sm:w-3/6" />
                 </div>
             </div>
         </div>
@@ -119,24 +119,30 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
         <>
             <div className="mt-6">
                 <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                        <h2 className="text-xl font-bold">{stream.title}</h2>
-                        <div className="flex items-center mt-4 space-x-4">
-                            <Image unoptimized
+                    {/* ---- FIX IS HERE: Added min-w-0 ---- */}
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-md font-bold break-words break-all md:text-lg mb-1 whitespace-pre-line">{stream.title}</h2>
+                        <div className="flex items-center space-x-4 sm:space-x-2 flex-wrap">
+                            <Image
+                                unoptimized
                                 width={48}
                                 height={48}
-                                src="https://placehold.co/48x48/3b82f6/ffffff?text=MF"
-                                alt="Mike Fisher"
-                                className="w-12 h-12 rounded-full"
+                                src={stream.channel?.profilePictureUrl || `https://placehold.co/48x48/3b82f6/ffffff?text=${stream.channel?.channelName?.charAt(0) || "C"}`}
+                                alt={stream.channel?.channelName || "Channel"}
+                                className="w-12 h-12 rounded-full sm:w-8 sm:h-8 flex-shrink-0"
                             />
-                            <div className="flex flex-col">
-                                <p className="font-semibold"><Link href="#">{stream.channel?.channelName}</Link></p>
-                                <p className="text-sm text-gray-400">{stream.channel?._count.subscribers} subscribers</p>
+                            <div className="flex flex-col min-w-0">
+                                <p className="font-semibold sm:text-sm truncate max-w-[120px] sm:max-w-[80px]">
+                                    <Link href="#">{stream.channel?.channelName}</Link>
+                                </p>
+                                <p className="text-sm text-gray-400 sm:text-xs truncate max-w-[120px] sm:max-w-[80px]">
+                                    {stream.channel?._count.subscribers} subscribers
+                                </p>
                             </div>
                             <button
                                 type='button'
                                 onClick={() => React("subscribe")}
-                                className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors ${stream.userStatus?.subscribed
+                                className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors sm:px-3 sm:py-1 sm:text-xs whitespace-nowrap ${stream.userStatus?.subscribed
                                     ? 'bg-gray-600 hover:bg-gray-700'
                                     : 'bg-red-600 hover:bg-red-700'
                                     }`}
@@ -144,29 +150,28 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
                             >
                                 {stream.userStatus?.subscribed ? 'Subscribed' : 'Subscribe'}
                             </button>
-                            <div className="flex items-center space-x-3 text-gray-400 justify-end flex-1">
+                            <div className="flex items-center space-x-3 text-gray-400 justify-end flex-1 sm:space-x-1">
                                 <button
                                     type='button'
                                     onClick={() => React("like")}
-                                    className="p-2 rounded-full hover:bg-gray-700 transition-colors group"
+                                    className="p-2 rounded-full hover:bg-gray-700 transition-colors group sm:p-1"
                                     suppressHydrationWarning={true}
                                 >
-                                    <ThumbsUp fill={stream.userStatus?.liked ? "currentColor" : "none"} />
-                                    <span className="text-xs ml-1 group-hover:text-white">{stream.engagements?.likeCount.toLocaleString()}</span>
+                                    <ThumbsUp fill={stream.userStatus?.liked ? "currentColor" : "none"} size={20} />
+                                    <span className="text-xs ml-1 group-hover:text-white sm:text-[10px]">{stream.engagements?.likeCount.toLocaleString()}</span>
                                 </button>
                                 <button
                                     type='button'
                                     onClick={() => React("dislike")}
-                                    className="p-2 rounded-full hover:bg-gray-700 transition-colors group"
+                                    className="p-2 rounded-full hover:bg-gray-700 transition-colors group sm:p-1"
                                     suppressHydrationWarning={true}
                                 >
-                                    <ThumbsDown fill={stream.userStatus?.disliked ? "currentColor" : "none"} />
-                                    <span className="text-xs ml-1 group-hover:text-white">{stream.engagements?.dislikeCount.toLocaleString()}</span>
+                                    <ThumbsDown fill={stream.userStatus?.disliked ? "currentColor" : "none"} size={20} />
+                                    <span className="text-xs ml-1 group-hover:text-white sm:text-[10px]">{stream.engagements?.dislikeCount.toLocaleString()}</span>
                                 </button>
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div className="flex flex-col items-start mt-2 bg-gray-900 rounded-lg p-4 border border-gray-800">
                     <div className="text-sm text-gray-400 mb-2">

@@ -1,9 +1,8 @@
 "use client";
 import api from "@/apis/api";
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image"
-import Link from "next/link"
-
+import Image from "next/image";
+import Link from "next/link";
 
 type Stream = {
     id: string;
@@ -40,24 +39,21 @@ export default function SuggestionsSidebar() {
         queryKey: ['suggestedStreams'],
         queryFn: async () => {
             const response = await api.get(`/videos`);
-            console.log(response);
             return response.data as Stream[];
         }
     });
     if (isLoading) {
         const placeholders = Array.from({ length: 5 });
         return (
-            <div className="w-full lg:w-1/3">
+            <div className="w-full lg:w-1/3 px-2">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold">You may like</h3>
                     <div className="text-sm text-gray-400">View all</div>
                 </div>
-
                 <div className="space-y-4">
                     {placeholders.map((_, i) => (
-                        <div key={i} className="flex gap-4 group p-2 rounded-lg">
-                            <div className="w-40 h-24 bg-gray-700/60 rounded-lg flex-shrink-0 animate-pulse" />
-
+                        <div key={i} className="flex flex-wrap gap-4 group p-2 rounded-lg">
+                            <div className="w-32 h-20 sm:w-40 sm:h-24 bg-gray-700/60 rounded-lg flex-shrink-0 animate-pulse" />
                             <div className="flex-1 min-w-0">
                                 <div className="h-4 bg-gray-700/60 rounded w-3/4 mb-2 animate-pulse" />
                                 <div className="h-3 bg-gray-700/60 rounded w-1/2 mb-3 animate-pulse" />
@@ -73,42 +69,44 @@ export default function SuggestionsSidebar() {
         );
     }
     return (
-        <div className="w-full lg:w-1/3">
+        <div className="w-full lg:w-1/3 px-2">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">You may like</h3>
                 <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                     View all
                 </a>
             </div>
-
             <div className="space-y-4">
                 {streams.map(stream => (
                     <SuggestionCard key={stream.id} suggestion={stream} />
                 ))}
             </div>
         </div>
-    )
+    );
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function SuggestionCard({ suggestion }: { suggestion: any }) {
+
+function SuggestionCard({ suggestion }: { suggestion: Stream }) {
     return (
-        <div className="flex gap-4 group cursor-pointer hover:bg-gray-800/50 p-2 rounded-lg transition-all">
-            <div className="w-40 relative flex-shrink-0">
+        <div className="flex flex-wrap gap-4 group cursor-pointer hover:bg-gray-800/50 p-2 rounded-lg transition-all">
+            <div className="w-32 h-20 sm:w-40 sm:h-24 relative flex-shrink-0">
                 <a href={`/watch?v=${suggestion.videoId}`}>
-                    <Image unoptimized
+                    <Image
+                        unoptimized
                         width={320}
                         height={180}
                         src={`${CONTENT_URL}/watch/${suggestion.videoId}/main.png`}
                         alt={suggestion.title}
-                        className="rounded-lg w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="rounded-lg w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                 </a>
-
             </div>
-
             <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-sm line-clamp-2  transition-colors">
-                    <a href={`/watch?v=${suggestion.videoId}`} className="hover:text-purple-400">
+                <h4 className="font-semibold text-sm break-words line-clamp-2 transition-colors">
+                    <a
+                        href={`/watch?v=${suggestion.videoId}`}
+                        className="hover:text-purple-400 block"
+                        style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
+                    >
                         {suggestion.title}
                     </a>
                 </h4>
@@ -142,5 +140,5 @@ function SuggestionCard({ suggestion }: { suggestion: any }) {
                 </div>
             </div>
         </div>
-    )
+    );
 }

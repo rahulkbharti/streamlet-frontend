@@ -264,7 +264,7 @@ const UploadPage = () => {
                 })
 
                 xhr.addEventListener('load', () => {
-                    if (xhr.status === 200) {
+                    if (xhr.status === 200 || xhr.status === 201) { // Azure status is 201
                         console.log('✅ File uploaded successfully')
                         resolve({
                             success: true,
@@ -285,6 +285,7 @@ const UploadPage = () => {
                 })
 
                 xhr.open('PUT', data.uploadUrl)
+                xhr.setRequestHeader('x-ms-blob-type', 'BlockBlob'); // for Azure
                 xhr.setRequestHeader('Content-Type', file.type || 'video/mp4')
                 setCurrentStep('uploading on b2')
                 xhr.send(file)

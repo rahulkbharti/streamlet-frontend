@@ -1,7 +1,7 @@
 import AuthorsSection from "@/components/AuthorSection";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import Sidebar from "@/components/Sidebar";
+// import Sidebar from "@/components/Sidebar";
 import StreamsSection from "@/components/StreamSection";
 
 export default function Home() {

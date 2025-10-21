@@ -4,7 +4,7 @@ import Header from '@/components/Header'
 import StreamInfo from '@/components/player/StreamInfo'
 import SuggestionsSidebar from '@/components/player/SuggestionSidebar'
 import HlsPlayer from '@/components/player/VideoControls'
-import Sidebar from '@/components/Sidebar'
+// import Sidebar from '@/components/Sidebar'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Suspense } from 'react';

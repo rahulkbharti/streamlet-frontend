@@ -1,4 +1,4 @@
-import AuthorsSection from "@/components/AuthorSection";
+import ChannelSection from "@/components/ChannelSection";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 // import Sidebar from "@/components/Sidebar";
@@ -11,7 +11,7 @@ export default function Home() {
         <Header />
         <HeroSection />
         <StreamsSection />
-        <AuthorsSection />
+        <ChannelSection />
       </main>
     </div>
   )

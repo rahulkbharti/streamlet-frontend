@@ -14,6 +14,7 @@ import {
 import api from "@/apis/api";
 import { logout } from "@/store/authSlice";
 import { PlusIcon } from "lucide-react";
+import SearchBar from "./SearchBar";
 
 // The main, cleaned-up Header component
 export default function Header() {
@@ -28,10 +29,10 @@ export default function Header() {
     }, []);
 
     return (
-        <header className="flex flex-row md:flex-row justify-between items-center mb-10">
+        <header className="flex flex-row md:flex-row justify-between items-center mb-8">
             <div className="flex items-center flex-start space-x-6">
                 {/* Mobile menu button */}
-                <button
+                {/* <button
                     type="button"
                     className="md:hidden rounded-full text-gray-400 hover:text-purple-500 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
                     aria-label="Open menu"
@@ -40,7 +41,7 @@ export default function Header() {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-                </button>
+                </button> */}
                 {/* Logo */}
                 <Link href="/" className="flex items-center group">
                     <Image
@@ -56,9 +57,9 @@ export default function Header() {
 
                 {/* Navigation */}
                 <nav className="hidden md:flex items-center space-x-6 text-gray-400">
-                    <a href="#" className="font-semibold text-white hover:text-purple-600 transition-colors">TOP STREAMING</a>
-                    <a href="#" className="hover:text-white hover:text-purple-600 transition-colors">GAMES</a>
-                    <a href="#" className="hover:text-white hover:text-purple-600 transition-colors">TEAMS</a>
+                    <a href="#" className="font-semibold text-white hover:text-purple-600 transition-colors text-xs">TOP STREAMING</a>
+                    <a href="#" className="hover:text-white hover:text-purple-600 transition-colors text-xs">GAMES</a>
+                    <a href="#" className="hover:text-white hover:text-purple-600 transition-colors text-xs">TEAMS</a>
                 </nav>
             </div>
 
@@ -86,13 +87,13 @@ export default function Header() {
                     <>
                         <Link
                             href="/auth/login"
-                            className="px-4 py-2 rounded-full bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="px-3 py-1.5 rounded-full text-sm bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                             Login
                         </Link>
                         <Link
                             href="/auth/signup"
-                            className="px-4 py-2 rounded-full bg-gray-800 text-white font-semibold hover:bg-gray-900 transition-colors border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                            className="px-3 py-1.5 rounded-full text-sm bg-gray-800 text-white font-semibold hover:bg-gray-900 transition-colors border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-700"
                         >
                             Signup
                         </Link>
@@ -104,20 +105,6 @@ export default function Header() {
 }
 
 // SearchBar Component (Unchanged)
-function SearchBar() {
-    return (
-        <div className="relative w-full max-w-[150px] h-8">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-                type="text"
-                placeholder="Search"
-                className="border border-gray-300 rounded-full py-1 pl-8 pr-2 w-full text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all h-8 text-gray-100"
-            />
-        </div>
-    );
-}
 
 // NotificationButton Component (Unchanged)
 // function NotificationButton() {
@@ -146,27 +133,36 @@ function UserProfile({ username }: { username?: string }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <div className="flex items-center space-x-2">
-                    <Image unoptimized
-                        width={20} height={20}
-                        src={`https://placehold.co/30x30/7c3aed/ffffff?text=${initial}`}
+                <button
+                    type="button"
+                    aria-label="Open user menu"
+                    // 1. Button: Simple, round, overflow hidden. KOI BORDER NAHI.
+                    className="flex items-center justify-center w-[50] h-8 rounded-full bg-white overflow-hidden 
+               focus:outline-none  focus:ring-purple-300 cursor-pointer"
+
+                >
+                    <Image
+                        unoptimized
+                        width={40}
+                        height={40}
+                        src={`https://placehold.co/40x40/7c3aed/ffffff?text=${initial}`}
                         alt="User avatar"
-                        className="rounded-full w-8 h-8 border-2 border-purple-500 cursor-pointer"
+                        // 4. Image ko bas 'w-full h-full' se button ke andar faila do.
+                        className="w-full h-full object-cover"
                     />
-                </div>
+                </button>
             </DropdownMenuTrigger>
 
-            {/* Add align="end" here */}
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel className="font-semibold">{(username || "User").toUpperCase()}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                {/* <DropdownMenuItem asChild>
                     <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => { alert('Implementing Soon') }}>Settings</DropdownMenuItem>
+                {/* <DropdownMenuItem onClick={() => { alert('Implementing Soon') }}>Settings</DropdownMenuItem> */}
                 <DropdownMenuItem asChild>
-                    <Link href="#" onClick={handleLogout}>Logout</Link>
+                    <Link href="#" className="cursor-pointer" onClick={handleLogout}>Logout</Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

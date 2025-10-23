@@ -8,42 +8,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo } from 'react';
 import { useSelector } from 'react-redux';
 
-// type Stream = {
-//     id: string;
-//     title: string;
-//     description: string;
-//     videoId: string;
-//     uploadStatus: string;
-//     visibility: string;
-//     createdAt: string;
-//     channelId: string;
-//     channel: {
-//         id: string;
-//         channelName: string;
-//         description: string;
-//         profilePictureUrl: string;
-//         createdAt: string;
-//         userId: string;
-//         _count: { subscribers: number };
-//     };
-//     engagements?: {
-//         _id: string;
-//         viewCount: number;
-//         likeCount: number;
-//         dislikeCount: number;
-//         createdAt: string;
-//         updatedAt: string;
-//         __v: number;
-//     };
-//     userStatus: {
-//         liked: boolean;
-//         disliked: boolean;
-//         subscribed: boolean;
-//     };
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     comments?: any[]; // Add this line to fix the error
-// };
-
 const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
     const queryClient = useQueryClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -141,7 +105,40 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
                             </div>
                             <button
                                 type='button'
-                                onClick={() => React("subscribe")}
+                                onClick={() => {
+                                    // Optimistic update for subscribe
+                                    if (!isAuthenticated) {
+                                        alert('You must be logged in to perform this action.');
+                                        return;
+                                    }
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    queryClient.setQueryData([videoId, "video"], (old: any) => {
+                                        if (!old) return old;
+                                        return {
+                                            ...old,
+                                            userStatus: {
+                                                ...old.userStatus,
+                                                subscribed: !old.userStatus?.subscribed,
+                                            }
+                                        };
+                                    });
+                                    React("subscribe", {
+                                        onError: () => {
+                                            // Revert on error
+                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                            queryClient.setQueryData([videoId, "video"], (old: any) => {
+                                                if (!old) return old;
+                                                return {
+                                                    ...old,
+                                                    userStatus: {
+                                                        ...old.userStatus,
+                                                        subscribed: !old.userStatus?.subscribed,
+                                                    }
+                                                };
+                                            });
+                                        }
+                                    });
+                                }}
                                 className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors sm:px-3 sm:py-1 sm:text-xs whitespace-nowrap ${stream.userStatus?.subscribed
                                     ? 'bg-gray-600 hover:bg-gray-700'
                                     : 'bg-red-600 hover:bg-red-700'
@@ -153,7 +150,43 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
                             <div className="flex items-center space-x-3 text-gray-400 justify-end flex-1 sm:space-x-1">
                                 <button
                                     type='button'
-                                    onClick={() => React("like")}
+                                    onClick={() => {
+                                        if (!isAuthenticated) {
+                                            alert('You must be logged in to perform this action.');
+                                            return;
+                                        }
+                                        // Optimistic update for like
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        queryClient.setQueryData([videoId, "video"], (old: any) => {
+                                            if (!old) return old;
+                                            const liked = !old.userStatus?.liked;
+                                            const disliked = liked ? false : old.userStatus?.disliked;
+                                            let likeCount = old.engagements?.likeCount || 0;
+                                            let dislikeCount = old.engagements?.dislikeCount || 0;
+                                            if (liked) likeCount += 1;
+                                            else likeCount -= 1;
+                                            if (old.userStatus?.disliked) dislikeCount -= 1;
+                                            return {
+                                                ...old,
+                                                userStatus: {
+                                                    ...old.userStatus,
+                                                    liked,
+                                                    disliked,
+                                                },
+                                                engagements: {
+                                                    ...old.engagements,
+                                                    likeCount,
+                                                    dislikeCount,
+                                                }
+                                            };
+                                        });
+                                        React("like", {
+                                            onError: () => {
+                                                // Revert on error
+                                                queryClient.invalidateQueries({ queryKey: [videoId, "video"] });
+                                            }
+                                        });
+                                    }}
                                     className="p-2 rounded-full hover:bg-gray-700 transition-colors group sm:p-1"
                                     suppressHydrationWarning={true}
                                 >
@@ -162,7 +195,43 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
                                 </button>
                                 <button
                                     type='button'
-                                    onClick={() => React("dislike")}
+                                    onClick={() => {
+                                        if (!isAuthenticated) {
+                                            alert('You must be logged in to perform this action.');
+                                            return;
+                                        }
+                                        // Optimistic update for dislike
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        queryClient.setQueryData([videoId, "video"], (old: any) => {
+                                            if (!old) return old;
+                                            const disliked = !old.userStatus?.disliked;
+                                            const liked = disliked ? false : old.userStatus?.liked;
+                                            let dislikeCount = old.engagements?.dislikeCount || 0;
+                                            let likeCount = old.engagements?.likeCount || 0;
+                                            if (disliked) dislikeCount += 1;
+                                            else dislikeCount -= 1;
+                                            if (old.userStatus?.liked) likeCount -= 1;
+                                            return {
+                                                ...old,
+                                                userStatus: {
+                                                    ...old.userStatus,
+                                                    disliked,
+                                                    liked,
+                                                },
+                                                engagements: {
+                                                    ...old.engagements,
+                                                    dislikeCount,
+                                                    likeCount,
+                                                }
+                                            };
+                                        });
+                                        React("dislike", {
+                                            onError: () => {
+                                                // Revert on error
+                                                queryClient.invalidateQueries({ queryKey: [videoId, "video"] });
+                                            }
+                                        });
+                                    }}
                                     className="p-2 rounded-full hover:bg-gray-700 transition-colors group sm:p-1"
                                     suppressHydrationWarning={true}
                                 >

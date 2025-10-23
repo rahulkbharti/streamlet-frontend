@@ -355,17 +355,30 @@ const UploadPage = () => {
 
             const result = await uploadingFile(videoFile)
             if (result.success) {
-                const response = await api.post("/auth/schedule-job", {
-                    key: result.key,
-                    videoId: result.videoId,
-                    socketId: socketRef.current?.id
-                })
+                // Retry scheduling job up to 3 times if it fails
+                const scheduleJobWithRetry = async (retries = 3): Promise<void> => {
+                    try {
+                        const response = await api.post("/auth/schedule-job", {
+                            key: result.key,
+                            videoId: result.videoId,
+                            socketId: socketRef.current?.id
+                        })
 
-                if (response.status >= 200 && response.status < 300) {
-                    setCurrentStep('downloading on worker')
-                } else {
-                    throw new Error('Failed to schedule video processing')
+                        if (response.status >= 200 && response.status < 300) {
+                            setCurrentStep('downloading on worker')
+                        } else {
+                            throw new Error('Failed to schedule video processing')
+                        }
+                    } catch (err) {
+                        if (retries > 0) {
+                            await scheduleJobWithRetry(retries - 1)
+                        } else {
+                            throw err
+                        }
+                    }
                 }
+
+                await scheduleJobWithRetry()
             }
 
         } catch (err) {
@@ -558,7 +571,20 @@ const UploadPage = () => {
                         Manage Videos
                     </Link>
                 </div>
-
+                {/* Restriction Note for New Users */}
+                <div className="mb-8">
+                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center gap-3">
+                        <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p className="text-yellow-300 font-semibold">Upload Restricted</p>
+                            <p className="text-yellow-200 text-sm">
+                                Uploading videos is restricted for newly registered users. Please contact the admin to request upload access for testing.
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Video Upload Section */}
                     <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
@@ -752,7 +778,7 @@ const UploadPage = () => {
                     {/* Actions */}
                     <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-700">
                         <Link
-                            href="/profile"
+                            href="/"
                             className="px-8 py-3 rounded-lg text-white font-semibold transition-all duration-200 text-center bg-gray-700 hover:bg-gray-600 hover:scale-105"
                         >
                             Cancel

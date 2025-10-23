@@ -119,6 +119,14 @@ export default function HlsPlayer({ videoId }: { videoId?: string }) {
                 ['--plyr-color-main' as any]: '#18A5FE'
             }}
         >
+            {!isLoaded && (
+                <div
+                    className="absolute inset-0 flex items-center justify-center bg-gray-950 bg-opacity-80 z-10"
+                    style={{ pointerEvents: 'none' }}
+                >
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gray-300 dark:border-gray-700"></div>
+                </div>
+            )}
             <video
                 ref={videoRef}
                 className="plyr-react plyr"

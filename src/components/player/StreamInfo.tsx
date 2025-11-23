@@ -7,6 +7,7 @@ import api from '@/apis/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo } from 'react';
 import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 
 const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
     const queryClient = useQueryClient();
@@ -26,7 +27,7 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
     const { mutate: React } = useMutation({
         mutationFn: async (action: string) => {
             if (!isAuthenticated) {
-                alert('You must be logged in to perform this action.');
+                toast.error('You must be logged in to perform this action.');
                 return;
             }
             const response = await api.post(
@@ -108,7 +109,7 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
                                 onClick={() => {
                                     // Optimistic update for subscribe
                                     if (!isAuthenticated) {
-                                        alert('You must be logged in to perform this action.');
+                                        toast.error('You must be logged in to perform this action.');
                                         return;
                                     }
                                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,7 +153,7 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
                                     type='button'
                                     onClick={() => {
                                         if (!isAuthenticated) {
-                                            alert('You must be logged in to perform this action.');
+                                            toast.error('You must be logged in to perform this action.');
                                             return;
                                         }
                                         // Optimistic update for like
@@ -197,7 +198,7 @@ const StreamInfo = memo(({ videoId }: { videoId?: string }) => {
                                     type='button'
                                     onClick={() => {
                                         if (!isAuthenticated) {
-                                            alert('You must be logged in to perform this action.');
+                                            toast.error('You must be logged in to perform this action.');
                                             return;
                                         }
                                         // Optimistic update for dislike

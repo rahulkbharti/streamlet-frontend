@@ -1,12 +1,19 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import store from "../store/store";
 import { logout, login, type LoginData } from "../store/authSlice";
+import toast from "react-hot-toast";
 // import { showNotification } from "../utils/notification";
 // import { AxiosRequestConfig } from "axios";
 
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    _slowRequestTimer?: NodeJS.Timeout;
+  }
+}
+
 // --- Configuration ---
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
+const TIME_OUT = 15000;
 const api = axios.create({
   baseURL: API_URL,
   timeout: 60000,
@@ -19,10 +26,13 @@ const api = axios.create({
 api.interceptors.request.use(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async (req: any & { _retry?: boolean }) => {
+    const time = setTimeout(() => {
+      toast("Taking Long Time");
+    }, TIME_OUT);
+    req._slowRequestTimer = time;
+
     const userData: LoginData | null = store.getState().auth.loginData ?? null;
-
     // console.log(userData);
-
     if (userData === null) return req;
 
     try {
@@ -36,9 +46,11 @@ api.interceptors.request.use(
         });
         console.log("Refresh token response status:", response.status);
         if (response.status !== 200) {
+          toast.error("Error While Geting refresh token");
           store.dispatch(logout());
           return Promise.reject("Unable to refresh token, logging out.");
         }
+
         const refreshData = response.data as { accessToken: string };
         console.log("Response from refresh endpoint:", refreshData.accessToken);
         const refreshed = { ...userData };
@@ -57,6 +69,33 @@ api.interceptors.request.use(
     }
   },
   (error) => Promise.reject(error)
+);
+
+axios.interceptors.response.use(
+  (response: AxiosResponse) => {
+    if (response.config?._slowRequestTimer) {
+      clearTimeout(response.config._slowRequestTimer);
+    }
+    return response;
+  },
+  (error: AxiosError) => {
+    if (axios.isAxiosError(error)) {
+      if (error.config?._slowRequestTimer) {
+        clearTimeout(error.config._slowRequestTimer);
+      }
+      if (error.code === "ECONNABORTED" && error.message.includes("timeout")) {
+        console.error("Request timed out:", error.message);
+        toast.error("The server took too long to respond. Please try again.");
+      }
+      if (error.response?.status === 401) {
+        console.warn("Received 401 Unauthorized. Logging out.");
+        store.dispatch(logout());
+        toast.error("You have been logged out. Please log in again.");
+      }
+    } else {
+      console.error("Interceptor error:", error);
+    }
+  }
 );
 
 export default api;

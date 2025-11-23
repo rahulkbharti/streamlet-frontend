@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Reply, SendHorizonalIcon, ThumbsUpIcon } from 'lucide-react'
 import Image from 'next/image'
 import { memo, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useSelector } from 'react-redux'
 
 type CommentType = {
@@ -59,7 +60,7 @@ const CommentsSectionComponent = ({ videoId }: { videoId: string }) => {
             postComment(newComment);
             setNewComment('')
         } else {
-            alert('You must be logged in to post a comment.');
+            toast.error('You must be logged in to post a comment.');
         }
     }
 

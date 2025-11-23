@@ -91,6 +91,12 @@ export default function HlsPlayer({ videoId }: { videoId?: string }) {
                     plyr = new Plyr(videoElement, newOptions);
                     setLoaded(true);
                 });
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data && data.type === 'networkError' && data.details === 'manifestLoadError') {
+                        setLoaded(false);
+                        console.log(data)
+                    }
+                });
                 const URL = `${CONTENT_URL}/watch/${videoId}/master.m3u8`;
                 // console.log(URL);
                 hls.loadSource(URL);

@@ -1,74 +1,174 @@
-import Link from "next/link"
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { 
+    Home, 
+    Flame, 
+    Radio, 
+    Tv, 
+    Compass, 
+    Clock, 
+    ThumbsUp, 
+    Film, 
+    Upload, 
+    ChevronLeft, 
+    ChevronRight,
+    Gamepad2,
+    Sparkles,
+    Layers
+} from "lucide-react";
 
 export default function Sidebar() {
+    const pathname = usePathname();
+    const [collapsed, setCollapsed] = useState(false);
+
+    const mainNav = [
+        { label: "Home", href: "/", icon: Home },
+        { label: "Trending", href: "/#trending", icon: Flame },
+        { label: "Live Streams", href: "/#live", icon: Radio },
+        { label: "Explore", href: "/#explore", icon: Compass },
+    ];
+
+    const libraryNav = [
+        { label: "My Channel", href: "/channel/manage", icon: Tv },
+        { label: "Studio Upload", href: "/upload", icon: Upload },
+        { label: "Liked Videos", href: "/#liked", icon: ThumbsUp },
+        { label: "Watch Later", href: "/#watchlater", icon: Clock },
+    ];
+
+    const categoryNav = [
+        { label: "Gaming", href: "/#gaming", icon: Gamepad2 },
+        { label: "4K HDR", href: "/#4k", icon: Sparkles },
+        { label: "Originals", href: "/#originals", icon: Layers },
+    ];
+
     return (
-        <aside className="w-20 bg-[#121212] p-4 flex flex-col items-center space-y-8 sticky top-0 h-screen">
-            {/* Logo */}
-            <div className="w-8 h-8">
-                <Link href="/">
-                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M20 0L25.8779 14.1221L40 20L25.8779 25.8779L20 40L14.1221 25.8779L0 20L14.1221 14.1221L20 0Z"
-                            fill="url(#paint0_linear_10_2)"
-                        />
-                        <defs>
-                            <linearGradient id="paint0_linear_10_2" x1="20" y1="0" x2="20" y2="40" gradientUnits="userSpaceOnUse">
-                                <stop stopColor="#A855F7" />
-                                <stop offset="1" stopColor="#6D28D9" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </Link>
+        <aside
+            className={`sticky top-0 h-screen transition-all duration-300 z-30 flex flex-col justify-between py-5 px-3 glass-panel border-r border-white/5 ${
+                collapsed ? "w-20" : "w-64"
+            }`}
+        >
+            {/* Top Section: Nav Links */}
+            <div className="flex flex-col space-y-6 overflow-y-auto overflow-x-hidden">
+                {/* Logo & Toggle */}
+                <div className="flex items-center justify-between px-2 pb-2">
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <div className="w-9 h-9 rounded-xl brand-gradient flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
+                            <Film className="w-5 h-5 text-white" />
+                        </div>
+                        {!collapsed && (
+                            <span className="font-extrabold tracking-tight text-base brand-gradient-text">
+                                STREAMLET
+                            </span>
+                        )}
+                    </Link>
+
+                    <button
+                        onClick={() => setCollapsed(!collapsed)}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                        title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                    >
+                        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                    </button>
+                </div>
+
+                {/* Discover Group */}
+                <div className="space-y-1">
+                    {!collapsed && (
+                        <p className="px-3 text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                            Discover
+                        </p>
+                    )}
+                    {mainNav.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                className={`flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                                    isActive
+                                        ? "bg-purple-600/20 text-purple-400 border border-purple-500/30 shadow-sm"
+                                        : "text-zinc-400 hover:text-white hover:bg-white/5"
+                                }`}
+                                title={collapsed ? item.label : undefined}
+                            >
+                                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-purple-400" : "text-zinc-400"}`} />
+                                {!collapsed && <span className="truncate">{item.label}</span>}
+                            </Link>
+                        );
+                    })}
+                </div>
+
+                {/* Library Group */}
+                <div className="space-y-1 pt-2 border-t border-white/5">
+                    {!collapsed && (
+                        <p className="px-3 text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                            Creator & Library
+                        </p>
+                    )}
+                    {libraryNav.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                className={`flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                                    isActive
+                                        ? "bg-purple-600/20 text-purple-400 border border-purple-500/30 shadow-sm"
+                                        : "text-zinc-400 hover:text-white hover:bg-white/5"
+                                }`}
+                                title={collapsed ? item.label : undefined}
+                            >
+                                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-purple-400" : "text-zinc-400"}`} />
+                                {!collapsed && <span className="truncate">{item.label}</span>}
+                            </Link>
+                        );
+                    })}
+                </div>
+
+                {/* Categories Group */}
+                <div className="space-y-1 pt-2 border-t border-white/5">
+                    {!collapsed && (
+                        <p className="px-3 text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                            Categories
+                        </p>
+                    )}
+                    {categoryNav.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                className="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                                title={collapsed ? item.label : undefined}
+                            >
+                                <Icon className="w-5 h-5 flex-shrink-0 text-zinc-400" />
+                                {!collapsed && <span className="truncate">{item.label}</span>}
+                            </Link>
+                        );
+                    })}
+                </div>
             </div>
 
-            {/* Sidebar Icons */}
-            <nav className="flex flex-col items-center space-y-6">
-                <Link href="/" className="p-3 bg-purple-600/20 text-purple-400 rounded-lg">
-                    <HomeIcon />
-                </Link>
-                <a href="/upload" className="p-3 text-gray-400 hover:bg-gray-700/50 rounded-lg transition-colors">
-                    <PlusIcon />
-                </a>
-                {/* <Link href="#" className="p-3 text-gray-400 hover:bg-gray-700/50 rounded-lg transition-colors">
-                    <ChartIcon />
-                </Link>
-                <Link href="#" className="p-3 text-gray-400 hover:bg-gray-700/50 rounded-lg transition-colors">
-                    <StarIcon />
-                </Link> */}
-            </nav>
+            {/* Bottom Card for Creator Studio */}
+            {!collapsed && (
+                <div className="p-3.5 rounded-2xl brand-gradient relative overflow-hidden text-white shadow-xl shadow-purple-600/20 mt-4">
+                    <div className="relative z-10">
+                        <h4 className="font-bold text-xs">Ready to Stream?</h4>
+                        <p className="text-[10px] text-purple-100 mt-1 opacity-90">Upload and transcode 4K HLS content in seconds.</p>
+                        <Link
+                            href="/upload"
+                            className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/40 hover:bg-black/60 backdrop-blur-md text-[11px] font-semibold transition-colors"
+                        >
+                            <Upload className="w-3.5 h-3.5" />
+                            Go to Studio
+                        </Link>
+                    </div>
+                </div>
+            )}
         </aside>
-    )
-}
-
-// Icon Components
-function HomeIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-    )
-}
-
-function PlusIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-    )
-}
-
-// function ChartIcon() {
-//     return (
-//         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-//             <path strokeLinecap="round" strokeLinejoin="round" d="M8 13v-1m4 1v-3m4 3V8M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-//         </svg>
-//     )
-// }
-
-// function StarIcon() {
-//     return (
-//         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-//             <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-//         </svg>
-//     )
-// }
+    );
+}

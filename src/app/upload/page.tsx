@@ -159,7 +159,7 @@ const UploadPage = () => {
     const [formData, setFormData] = useState<UploadState>(INITIAL_UPLOAD_STATE)
     const [isUploading, setIsUploading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [previewUrl, _setPreviewUrl] = useState<string>('')
+    const [previewUrl] = useState<string>('')
     const socketRef = useRef<Socket | null>(null)
 
     const {

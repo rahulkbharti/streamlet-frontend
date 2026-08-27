@@ -1,126 +1,139 @@
-export default function HeroSection() {
-    return (
-        <section className="flex flex-col lg:flex-row gap-8 mb-12">
-            {/* Left Side: Text */}
-            <div className="flex-1 flex flex-col justify-center">
-                <h2 className="text-3xl md:text-6xl font-black tracking-tighter leading-none">
-                    PLAY, COMPETE, FOLLOW POPULAR STREAMERS
-                </h2>
-                <p className="mt-6 text-gray-400 max-w-md">
-                    The best streamers gather here to have a good time, be among us, join us!
-                </p>
-            </div>
+"use client";
+import Link from "next/link";
+import { Play, Flame, Radio, Sparkles, Tv, ShieldCheck, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
 
-            {/* Right Side: Video Preview */}
-            <div className="flex-1">
-                <VideoPreview />
+export default function HeroSection() {
+    const [viewers, setViewers] = useState(1420);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setViewers((prev) => prev + Math.floor(Math.random() * 5) - 2);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <section className="relative rounded-3xl overflow-hidden mb-12 p-6 lg:p-10 glass-panel border border-white/10 shadow-2xl">
+            {/* Background Ambient Glows */}
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10">
+                {/* Left: Text & CTA */}
+                <div className="flex-1 space-y-6 text-center lg:text-left">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold backdrop-blur-md">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                        Next-Gen Adaptive HLS Video Platform
+                    </div>
+
+                    <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">
+                        Stream Without Limits.{" "}
+                        <span className="brand-gradient-text block mt-1">
+                            Watch in Real-Time.
+                        </span>
+                    </h1>
+
+                    <p className="text-zinc-300 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Experience ultra-low latency adaptive streaming powered by microservices architecture. Watch, upload, and interact with creators worldwide in crisp 4K quality.
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                        <Link
+                            href="/#explore"
+                            className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full text-xs sm:text-sm font-bold text-white brand-gradient shadow-lg shadow-purple-500/30 hover:scale-105 active:scale-95 transition-all"
+                        >
+                            <Play className="w-4 h-4 fill-white" />
+                            Explore Live & VOD
+                        </Link>
+                        <Link
+                            href="/upload"
+                            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-xs sm:text-sm font-semibold text-zinc-200 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 backdrop-blur-md transition-all"
+                        >
+                            <Tv className="w-4 h-4 text-purple-400" />
+                            Creator Studio
+                        </Link>
+                    </div>
+
+                    {/* Quick Stats Badges */}
+                    <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 border-t border-white/5 text-xs text-zinc-400">
+                        <div className="flex items-center gap-1.5">
+                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                            <span>Adaptive Multi-Bitrate</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <Flame className="w-4 h-4 text-orange-400" />
+                            <span>Zero Buffering</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 hidden sm:flex">
+                            <Radio className="w-4 h-4 text-purple-400" />
+                            <span>HLS Distributed CDN</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right: Featured Stream Spotlight Card */}
+                <div className="w-full lg:w-[460px] flex-shrink-0">
+                    <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-zinc-950/80 shadow-2xl group">
+                        {/* Spotlight Image Overlay */}
+                        <div className="relative aspect-video w-full bg-gradient-to-tr from-purple-900/40 via-zinc-900 to-indigo-950/60 flex items-center justify-center overflow-hidden">
+                            <div className="absolute inset-0 bg-[radial-gradient(#8b5cf6_1px,transparent_1px)] [background-size:16px_16px] opacity-25" />
+                            
+                            {/* Animated Pulse Play Center */}
+                            <div className="relative z-10 w-16 h-16 rounded-full brand-gradient flex items-center justify-center shadow-lg shadow-purple-500/50 group-hover:scale-110 transition-transform">
+                                <Play className="w-7 h-7 text-white fill-white ml-1" />
+                            </div>
+
+                            {/* Top Badges */}
+                            <div className="absolute top-3 left-3 flex items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 bg-red-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-md animate-pulse">
+                                    <Radio className="w-3 h-3" />
+                                    LIVE NOW
+                                </span>
+                                <span className="bg-black/60 backdrop-blur-md text-zinc-200 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-white/10">
+                                    1080p 60fps
+                                </span>
+                            </div>
+
+                            <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-md text-zinc-200 text-xs px-2.5 py-1 rounded-md border border-white/10">
+                                <Eye className="w-3.5 h-3.5 text-purple-400" />
+                                <span>{viewers.toLocaleString()} watching</span>
+                            </div>
+
+                            {/* Bottom Waveform effect */}
+                            <div className="absolute bottom-3 left-4 right-4 flex items-end gap-1 h-6 opacity-60">
+                                {[40, 70, 30, 90, 60, 100, 45, 80, 55, 95, 35, 75, 50, 85, 65, 40].map((h, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex-1 bg-purple-400 rounded-t-sm animate-pulse"
+                                        style={{ height: `${h}%`, animationDelay: `${i * 0.1}s` }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Card Info */}
+                        <div className="p-4 bg-[#11121a] flex items-center justify-between border-t border-white/10">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full brand-gradient p-0.5 shadow-md">
+                                    <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center font-bold text-xs text-purple-300">
+                                        SL
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-sm text-white group-hover:text-purple-300 transition-colors">
+                                        Streamlet Spotlight Showcase
+                                    </h4>
+                                    <p className="text-xs text-zinc-400">Official Channel • High-Bitrate Live</p>
+                                </div>
+                            </div>
+                            <span className="text-xs font-semibold text-purple-400 group-hover:translate-x-1 transition-transform">
+                                Watch →
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
-    )
-}
-
-function VideoPreview() {
-    return (
-        <div
-            className="bg-cover bg-center rounded-2xl p-6 flex flex-col justify-between h-80"
-            style={{ backgroundImage: "url('feature1.png')" }}
-        >
-            <CountdownTimer />
-            <VideoControls />
-        </div>
-    )
-}
-
-function CountdownTimer() {
-    return (
-        <div className="bg-black/50 text-center py-2 px-4 rounded-lg self-start">
-            <p className="text-sm text-gray-300">Broadcast starts in</p>
-            <p className="text-3xl font-bold tracking-widest">04:08</p>
-        </div>
-    )
-}
-
-function VideoControls() {
-    return (
-        <div className="text-center">
-            <div className="flex items-center justify-between text-gray-300">
-                <ControlButtons />
-                <ProgressBar />
-                <FullscreenButton />
-            </div>
-            <p className="text-sm mt-3">Battle for the castle with Franck Jourdan and Eva703</p>
-        </div>
-    )
-}
-
-function ControlButtons() {
-    return (
-        <div className="flex items-center space-x-4">
-            <button
-                type="button"
-                className="hover:text-white"
-                aria-label="Pause"
-                title="Pause"
-                suppressHydrationWarning={true}
-            >
-                <PauseIcon />
-            </button>
-            <button
-                type="button"
-                className="hover:text-white"
-                aria-label="Play"
-                title="Play"
-                suppressHydrationWarning={true}
-            >
-                <PlayIcon />
-            </button>
-        </div>
-    )
-}
-
-function ProgressBar() {
-    return (
-        <div className="flex items-center space-x-2 flex-1 mx-4">
-            <span className="bg-purple-600 text-xs font-semibold px-2 py-1 rounded-md">COMING SOON</span>
-            <div className="w-full bg-gray-600 rounded-full h-1.5">
-                <div className="bg-purple-500 h-1.5 rounded-full"></div>
-            </div>
-            <span className="text-xs">00:00</span>
-        </div>
-    )
-}
-
-function FullscreenButton() {
-    return (
-        <div className="flex items-center space-x-2">
-            <button type="button" className="hover:text-white" aria-label="Fullscreen" title="Fullscreen" suppressHydrationWarning={true} >
-                <FullscreenIcon />
-            </button>
-        </div>
-    )
-}
-
-// Icon Components
-function PauseIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v4a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5z" />
-        </svg>
-    )
-}
-
-function PlayIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z" />
-        </svg>
-    )
-}
-
-function FullscreenIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z" />
-        </svg>
-    )
-}
+    );
+}

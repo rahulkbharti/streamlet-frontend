@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -13,158 +12,158 @@ import {
 } from "@/components/ui/dropdown-menu"
 import api from "@/apis/api";
 import { logout } from "@/store/authSlice";
-import { PlusIcon } from "lucide-react";
+import { Plus, Video, Radio, Flame, Sparkles, LogOut, User } from "lucide-react";
 import SearchBar from "./SearchBar";
 
-// The main, cleaned-up Header component
 export default function Header() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { isAuthenticated, loginData } = useSelector((state: any) => state.auth);
-
     const [isClient, setIsClient] = useState(false);
 
-    // This effect runs only on the client, after the initial render
     useEffect(() => {
         setIsClient(true);
     }, []);
 
     return (
-        <header className="flex flex-row md:flex-row justify-between items-center mb-8">
-            <div className="flex items-center flex-start space-x-6">
-                {/* Mobile menu button */}
-                {/* <button
-                    type="button"
-                    className="md:hidden rounded-full text-gray-400 hover:text-purple-500 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    aria-label="Open menu"
-                    onClick={() => alert('Mobile menu coming soon')}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button> */}
-                {/* Logo */}
-                <Link href="/" className="flex items-center group">
-                    <Image
-                        src="/logo.png"
-                        alt="Logo"
-                        width={60}
-                        height={40}
-                        className="rounded-lg shadow-md group-hover:scale-105 transition-transform"
-                    />
+        <header className="sticky top-0 z-40 glass-header px-4 lg:px-8 py-3 mb-6 flex items-center justify-between transition-all duration-300">
+            {/* Left: Brand & Navigation */}
+            <div className="flex items-center space-x-6">
+                <Link href="/" className="flex items-center gap-2.5 group">
+                    <div className="relative flex items-center justify-center w-10 h-10 rounded-xl brand-gradient p-0.5 shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+                        <div className="w-full h-full bg-[#0d0e15] rounded-[10px] flex items-center justify-center">
+                            <Video className="w-5 h-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
+                        </div>
+                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                        </span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-lg font-black tracking-tight brand-gradient-text">STREAMLET</span>
+                        <span className="text-[10px] font-semibold tracking-wider text-purple-400/80 -mt-1 hidden sm:block">VOD & LIVE</span>
+                    </div>
                 </Link>
 
-
-
-                {/* Navigation */}
-                <nav className="hidden md:flex items-center space-x-6 text-gray-400">
-                    <a href="#" className="font-semibold text-white hover:text-purple-600 transition-colors text-xs">TOP STREAMING</a>
-                    <a href="#" className="hover:text-white hover:text-purple-600 transition-colors text-xs">GAMES</a>
-                    <a href="#" className="hover:text-white hover:text-purple-600 transition-colors text-xs">TEAMS</a>
+                <nav className="hidden lg:flex items-center space-x-1">
+                    <Link
+                        href="/"
+                        className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors flex items-center gap-1.5"
+                    >
+                        <Flame className="w-3.5 h-3.5 text-purple-400" />
+                        Explore
+                    </Link>
+                    <Link
+                        href="/#trending"
+                        className="px-3.5 py-1.5 rounded-full text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-1.5"
+                    >
+                        <Radio className="w-3.5 h-3.5 text-red-400" />
+                        Live
+                    </Link>
+                    <Link
+                        href="/#channels"
+                        className="px-3.5 py-1.5 rounded-full text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-1.5"
+                    >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        Top Channels
+                    </Link>
                 </nav>
             </div>
 
-            <div className="flex items-center space-x-4 md:mt-0">
-                {/* Uncomment SearchBar when ready */}
+            {/* Middle: Enhanced SearchBar */}
+            <div className="flex-1 max-w-md mx-4 hidden sm:block">
                 <SearchBar />
+            </div>
 
-                {/* Prevent layout shift during SSR/hydration */}
+            {/* Right: Actions / Auth */}
+            <div className="flex items-center space-x-3">
                 {!isClient ? (
-                    <div className="h-10 w-40" aria-hidden="true" />
+                    <div className="h-9 w-32 bg-white/5 rounded-full animate-pulse" />
                 ) : isAuthenticated ? (
                     <>
-                        {/* <NotificationButton /> */}
                         <Link
                             href="/upload"
-                            className="mr-4 flex gap-1 items-center group border-2 border-purple-500 rounded-full p-1 hover:border-purple-700 transition-colors"
+                            className="relative group inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-white brand-gradient hover:opacity-95 shadow-md shadow-purple-500/25 transition-all hover:scale-105 active:scale-95"
                             title="Upload Video"
                         >
-                            <PlusIcon className="h-5 w-5 text-purple-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-purple-500 group-hover:text-purple-700 transition-colors hidden md:block pr-3">Upload</span>
+                            <Plus className="w-4 h-4 stroke-[2.5]" />
+                            <span className="hidden md:inline">Studio Upload</span>
                         </Link>
+
                         <UserProfile username={loginData?.username} />
                     </>
                 ) : (
-                    <>
+                    <div className="flex items-center space-x-2">
                         <Link
                             href="/auth/login"
-                            className="px-3 py-1.5 rounded-full text-sm bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="px-4 py-2 rounded-full text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
                         >
-                            Login
+                            Sign In
                         </Link>
                         <Link
                             href="/auth/signup"
-                            className="px-3 py-1.5 rounded-full text-sm bg-gray-800 text-white font-semibold hover:bg-gray-900 transition-colors border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                            className="px-4 py-2 rounded-full text-xs font-semibold text-white brand-gradient shadow-md shadow-purple-500/20 hover:scale-105 transition-all"
                         >
-                            Signup
+                            Get Started
                         </Link>
-                    </>
+                    </div>
                 )}
             </div>
         </header>
     );
 }
 
-// SearchBar Component (Unchanged)
-
-// NotificationButton Component (Unchanged)
-// function NotificationButton() {
-//     /* ... SVG content ... */
-//     return (
-//         <button type="button" className="p-2 text-gray-400 hover:text-white transition-colors" aria-label="Notifications" title="Notifications" onClick={() => { alert('Implementing Soon') }} suppressHydrationWarning={true}>
-//             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-//             </svg>
-//         </button>
-//     )
-// }
-
-// UserProfile Component (Simplified - no internal state needed)
 function UserProfile({ username }: { username?: string }) {
     const dispatch = useDispatch();
-    // The initial can be derived directly from props, no need for useState/useEffect
     const initial = (username?.[0] ?? 'U').toUpperCase();
+
     const handleLogout = async () => {
-        const response = await api.post('/auth/logout');
-        if (response.status === 200) {
-            window.location.href = '/';
+        try {
+            await api.post('/auth/logout');
+        } catch {
+            // ignore
+        } finally {
             dispatch(logout());
+            window.location.href = '/';
         }
-    }
+    };
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <button
                     type="button"
                     aria-label="Open user menu"
-                    // 1. Button: Simple, round, overflow hidden. KOI BORDER NAHI.
-                    className="flex items-center justify-center w-[50] h-8 rounded-full bg-white overflow-hidden 
-               focus:outline-none  focus:ring-purple-300 cursor-pointer"
-
+                    className="flex items-center justify-center w-9 h-9 rounded-full ring-2 ring-purple-500/50 hover:ring-purple-400 transition-all p-0.5 focus:outline-none cursor-pointer"
                 >
-                    <Image
-                        unoptimized
-                        width={40}
-                        height={40}
-                        src={`https://placehold.co/40x40/7c3aed/ffffff?text=${initial}`}
-                        alt="User avatar"
-                        // 4. Image ko bas 'w-full h-full' se button ke andar faila do.
-                        className="w-full h-full object-cover"
-                    />
+                    <div className="w-full h-full rounded-full brand-gradient flex items-center justify-center text-white font-bold text-xs shadow-inner">
+                        {initial}
+                    </div>
                 </button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel className="font-semibold">{(username || "User").toUpperCase()}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {/* <DropdownMenuItem asChild>
-                    <Link href="/profile">Profile</Link>
-                </DropdownMenuItem> */}
-                <DropdownMenuSeparator />
-                {/* <DropdownMenuItem onClick={() => { alert('Implementing Soon') }}>Settings</DropdownMenuItem> */}
+            <DropdownMenuContent align="end" className="w-56 glass-panel border border-white/10 text-zinc-100 p-2 rounded-xl">
+                <DropdownMenuLabel className="font-medium text-xs text-zinc-400 px-2 py-1.5">
+                    Signed in as <span className="text-white font-semibold block text-sm truncate">{username || "User"}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-white/10 my-1" />
                 <DropdownMenuItem asChild>
-                    <Link href="#" className="cursor-pointer" onClick={handleLogout}>Logout</Link>
+                    <Link href="/channel/manage" className="flex items-center gap-2 text-xs px-2 py-2 rounded-lg hover:bg-white/10 cursor-pointer">
+                        <User className="w-4 h-4 text-purple-400" />
+                        My Channel
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href="/upload" className="flex items-center gap-2 text-xs px-2 py-2 rounded-lg hover:bg-white/10 cursor-pointer">
+                        <Video className="w-4 h-4 text-indigo-400" />
+                        Creator Studio
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-white/10 my-1" />
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-xs px-2 py-2 rounded-lg text-red-400 hover:bg-red-500/10 cursor-pointer">
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );
-}
+}
